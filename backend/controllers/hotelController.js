@@ -1,10 +1,71 @@
 const pool = require("../config/db");
 const { validateHotel } = require("../utils/validators");
 
+// Get all unique amenities/categories
+const getCategories = async (req, res) => {
+  try {
+    const [hotels] = await pool.query(
+      "SELECT amenities FROM hotels WHERE amenities IS NOT NULL"
+    );
+
+    // Extract all unique amenities
+    const allAmenities = new Set();
+    hotels.forEach((hotel) => {
+      const amenities =
+        typeof hotel.amenities === "string"
+          ? JSON.parse(hotel.amenities)
+          : hotel.amenities || [];
+      amenities.forEach((a) => allAmenities.add(a));
+    });
+
+    // Map amenities to category objects with icons
+    const iconMap = {
+      wifi: "wifi",
+      pool: "pool",
+      spa: "spa",
+      gym: "fitness_center",
+      restaurant: "restaurant",
+      parking: "local_parking",
+      ac: "ac_unit",
+      kitchen: "kitchen",
+      workspace: "work",
+      beachfront: "beach_access",
+      luxury: "diamond",
+      cabin: "cabin",
+    };
+
+    const categories = Array.from(allAmenities).map((amenity) => ({
+      id: amenity,
+      name:
+        amenity.charAt(0).toUpperCase() + amenity.slice(1).replace("_", " "),
+      icon: iconMap[amenity] || "category",
+    }));
+
+    res.json({
+      success: true,
+      data: categories,
+    });
+  } catch (error) {
+    console.error("GetCategories error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error fetching categories",
+    });
+  }
+};
+
 // Get all hotels with pagination, search, and filters
 const getAllHotels = async (req, res) => {
   try {
-    const { search, city, status, stars, page = 1, limit = 6 } = req.query;
+    const {
+      search,
+      city,
+      status,
+      stars,
+      amenity,
+      page = 1,
+      limit = 6,
+    } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
     let query =
@@ -43,6 +104,14 @@ const getAllHotels = async (req, res) => {
       countQuery += " AND stars = ?";
       params.push(parseInt(stars));
       countParams.push(parseInt(stars));
+    }
+
+    // Filter by amenity (search in JSON array)
+    if (amenity) {
+      query += " AND JSON_CONTAINS(h.amenities, ?)";
+      countQuery += " AND JSON_CONTAINS(amenities, ?)";
+      params.push(JSON.stringify(amenity));
+      countParams.push(JSON.stringify(amenity));
     }
 
     // Add ordering and pagination
@@ -332,6 +401,7 @@ const deleteHotel = async (req, res) => {
 };
 
 module.exports = {
+  getCategories,
   getAllHotels,
   getHotelById,
   createHotel,

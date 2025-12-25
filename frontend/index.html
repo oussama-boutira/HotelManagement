@@ -226,7 +226,9 @@
       <div class="px-6 md:px-12 lg:px-20 mx-auto max-w-[1920px]">
         <div
           class="flex items-center gap-8 overflow-x-auto hide-scrollbar pb-4"
+          id="categoriesContainer"
         >
+          <!-- "All" button - always present -->
           <button
             onclick="filterByCategory('all')"
             class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-black dark:border-white pb-2"
@@ -241,79 +243,11 @@
               >All</span
             >
           </button>
-          <button
-            onclick="filterByCategory('beachfront')"
-            class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 pb-2 transition-all opacity-70 hover:opacity-100"
-            data-category="beachfront"
-          >
-            <span
-              class="material-symbols-outlined text-text-secondary dark:text-gray-400 !text-[24px]"
-              >beach_access</span
-            >
-            <span
-              class="text-xs font-medium text-text-secondary dark:text-gray-400 whitespace-nowrap"
-              >Beachfront</span
-            >
-          </button>
-          <button
-            onclick="filterByCategory('cabins')"
-            class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 pb-2 transition-all opacity-70 hover:opacity-100"
-            data-category="cabins"
-          >
-            <span
-              class="material-symbols-outlined text-text-secondary dark:text-gray-400 !text-[24px]"
-              >cabin</span
-            >
-            <span
-              class="text-xs font-medium text-text-secondary dark:text-gray-400 whitespace-nowrap"
-              >Cabins</span
-            >
-          </button>
-          <button
-            onclick="filterByCategory('trending')"
-            class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 pb-2 transition-all opacity-70 hover:opacity-100"
-            data-category="trending"
-          >
-            <span
-              class="material-symbols-outlined text-text-secondary dark:text-gray-400 !text-[24px]"
-              >local_fire_department</span
-            >
-            <span
-              class="text-xs font-medium text-text-secondary dark:text-gray-400 whitespace-nowrap"
-              >Trending</span
-            >
-          </button>
-          <button
-            onclick="filterByCategory('pools')"
-            class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 pb-2 transition-all opacity-70 hover:opacity-100"
-            data-category="pools"
-          >
-            <span
-              class="material-symbols-outlined text-text-secondary dark:text-gray-400 !text-[24px]"
-              >pool</span
-            >
-            <span
-              class="text-xs font-medium text-text-secondary dark:text-gray-400 whitespace-nowrap"
-              >Amazing Pools</span
-            >
-          </button>
-          <button
-            onclick="filterByCategory('luxury')"
-            class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 pb-2 transition-all opacity-70 hover:opacity-100"
-            data-category="luxury"
-          >
-            <span
-              class="material-symbols-outlined text-text-secondary dark:text-gray-400 !text-[24px]"
-              >diamond</span
-            >
-            <span
-              class="text-xs font-medium text-text-secondary dark:text-gray-400 whitespace-nowrap"
-              >Luxury</span
-            >
-          </button>
+
+          <!-- Dynamic categories will be loaded here -->
 
           <!-- Status Filter -->
-          <div class="ml-auto flex items-center gap-2">
+          <div class="ml-auto flex items-center gap-2" id="filterControls">
             <select
               id="statusFilter"
               onchange="applyFilters()"
@@ -565,12 +499,43 @@
       // State
       let currentPage = 1;
       let currentFilters = {};
+      let currentCategory = "all";
 
       // Initialize
       document.addEventListener("DOMContentLoaded", async () => {
         updateAuthUI();
+        await loadCategories();
         await loadHotels();
       });
+
+      // Load categories from database
+      async function loadCategories() {
+        const result = await api.getCategories();
+
+        if (result.ok && result.data.data) {
+          const container = document.getElementById("categoriesContainer");
+          const filterControls = document.getElementById("filterControls");
+
+          // Create category buttons
+          const categoryButtons = result.data.data
+            .map(
+              (cat) => `
+            <button
+              onclick="filterByCategory('${cat.id}')"
+              class="category-btn group flex flex-col items-center gap-2 min-w-[64px] cursor-pointer border-b-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 pb-2 transition-all opacity-70 hover:opacity-100"
+              data-category="${cat.id}"
+            >
+              <span class="material-symbols-outlined text-text-secondary dark:text-gray-400 !text-[24px]">${cat.icon}</span>
+              <span class="text-xs font-medium text-text-secondary dark:text-gray-400 whitespace-nowrap">${cat.name}</span>
+            </button>
+          `
+            )
+            .join("");
+
+          // Insert before filter controls
+          filterControls.insertAdjacentHTML("beforebegin", categoryButtons);
+        }
+      }
 
       // Load hotels
       async function loadHotels() {
@@ -583,12 +548,17 @@
         loading.classList.remove("hidden");
         empty.classList.add("hidden");
 
-        // Build params
+        // Build params - include amenity filter if category is selected
         const params = {
           page: currentPage,
           limit: 6,
           ...currentFilters,
         };
+
+        // Add amenity filter if a category is selected (not 'all')
+        if (currentCategory !== "all") {
+          params.amenity = currentCategory;
+        }
 
         const result = await api.getHotels(params);
 
@@ -607,6 +577,7 @@
         } else {
           // Show empty state
           empty.classList.remove("hidden");
+          document.getElementById("paginationContainer").innerHTML = "";
         }
       }
 
@@ -642,12 +613,25 @@
         document.getElementById("statusFilter").value = "";
         document.getElementById("starsFilter").value = "";
         currentFilters = {};
+        currentCategory = "all";
         currentPage = 1;
+
+        // Reset category UI
+        document.querySelectorAll(".category-btn").forEach((btn) => {
+          const isAll = btn.dataset.category === "all";
+          btn.classList.toggle("border-black", isAll);
+          btn.classList.toggle("dark:border-white", isAll);
+          btn.classList.toggle("border-transparent", !isAll);
+          btn.classList.toggle("opacity-70", !isAll);
+        });
+
         loadHotels();
       }
 
-      // Filter by category
+      // Filter by category (amenity)
       function filterByCategory(category) {
+        currentCategory = category;
+
         // Update active state
         document.querySelectorAll(".category-btn").forEach((btn) => {
           const isActive = btn.dataset.category === category;
@@ -657,7 +641,6 @@
           btn.classList.toggle("opacity-70", !isActive);
         });
 
-        // Categories are just UI for now, could map to amenities later
         currentPage = 1;
         loadHotels();
       }

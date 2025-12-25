@@ -92,6 +92,8 @@ const api = {
   getMe: () => apiRequest("/auth/me"),
 
   // Hotels
+  getCategories: () => apiRequest("/hotels/categories"),
+
   getHotels: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     return apiRequest(`/hotels${queryString ? "?" + queryString : ""}`);
