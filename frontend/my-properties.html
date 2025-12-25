@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>P2P My Properties Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2beead",
+              "background-light": "#f6f8f7",
+              "background-dark": "#10221c",
+              "surface-light": "#ffffff",
+              "surface-dark": "#1C2E28",
+              "text-main": "#111816",
+              "text-secondary": "#61897c",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white overflow-x-hidden min-h-screen flex flex-col"
+  >
+    <!-- Top Navigation -->
+    <header
+      class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f4f3] dark:border-[#2A3E38] bg-surface-light dark:bg-surface-dark px-6 py-3 lg:px-10"
+    >
+      <a
+        href="/"
+        class="flex items-center gap-4 text-text-main dark:text-white cursor-pointer"
+      >
+        <div class="size-8 text-primary">
+          <span class="material-symbols-outlined text-[32px]"
+            >travel_explore</span
+          >
+        </div>
+        <h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">
+          P2P Hotels
+        </h2>
+      </a>
+      <div class="flex flex-1 justify-end gap-4 md:gap-8 items-center">
+        <div class="hidden md:flex items-center gap-9">
+          <a
+            class="text-text-main dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+            href="/add-hotel.html"
+            >Add Property</a
+          >
+        </div>
+        <a
+          href="/add-hotel.html"
+          class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#111816] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
+        >
+          <span class="truncate">Add Property</span>
+        </a>
+        <div
+          class="flex items-center gap-2 cursor-pointer p-1 rounded-full border border-transparent hover:border-[#f0f4f3] dark:hover:border-[#2A3E38] transition-all"
+        >
+          <a
+            href="/"
+            class="material-symbols-outlined text-text-main dark:text-white"
+            >home</a
+          >
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex justify-center py-8 px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col max-w-[960px] w-full gap-8">
+        <!-- Page Heading & Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h1
+            class="text-text-main dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]"
+          >
+            My Properties
+          </h1>
+          <a
+            href="/add-hotel.html"
+            class="flex items-center justify-center rounded-lg h-10 px-4 bg-surface-light dark:bg-surface-dark border border-[#dbe6e2] dark:border-[#2A3E38] text-text-main dark:text-white text-sm font-bold shadow-sm hover:bg-[#f0f4f3] dark:hover:bg-[#253832] transition-colors"
+          >
+            <span class="material-symbols-outlined mr-2 text-[20px]">add</span>
+            <span>Add new listing</span>
+          </a>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-[#dbe6e2] dark:border-[#2A3E38]">
+          <nav aria-label="Tabs" class="flex gap-8 -mb-px">
+            <button
+              onclick="filterTab('all')"
+              class="tab-btn border-b-[3px] border-text-main dark:border-primary py-4 px-1 text-sm font-bold text-text-main dark:text-white hover:text-primary transition-colors"
+              data-tab="all"
+            >
+              All (<span class="tab-count">0</span>)
+            </button>
+            <button
+              onclick="filterTab('available')"
+              class="tab-btn border-b-[3px] border-transparent py-4 px-1 text-sm font-bold text-text-secondary dark:text-gray-400 hover:text-text-main dark:hover:text-white hover:border-gray-300 transition-colors"
+              data-tab="available"
+            >
+              Available (<span class="tab-count">0</span>)
+            </button>
+            <button
+              onclick="filterTab('full')"
+              class="tab-btn border-b-[3px] border-transparent py-4 px-1 text-sm font-bold text-text-secondary dark:text-gray-400 hover:text-text-main dark:hover:text-white hover:border-gray-300 transition-colors"
+              data-tab="full"
+            >
+              Full (<span class="tab-count">0</span>)
+            </button>
+          </nav>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="flex items-center justify-center py-12">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden empty-state">
+          <span class="material-symbols-outlined icon">hotel</span>
+          <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">
+            No properties yet
+          </h3>
+          <p class="text-text-secondary dark:text-gray-400 mb-4">
+            Start by adding your first property
+          </p>
+          <a
+            href="/add-hotel.html"
+            class="bg-primary text-[#111816] font-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
+          >
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Add Property
+          </a>
+        </div>
+
+        <!-- Listings List -->
+        <div id="propertiesList" class="flex flex-col gap-4">
+          <!-- Cards will be inserted here -->
+        </div>
+
+        <!-- Pagination -->
+        <div
+          id="paginationContainer"
+          class="pt-8 flex justify-center pb-20"
+        ></div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/hotels.js"></script>
+    <script>
+      let myHotels = [];
+      let currentTab = "all";
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", async () => {
+        if (!requireAuth()) return;
+
+        updateAuthUI();
+        await loadMyProperties();
+      });
+
+      // Load user's properties
+      async function loadMyProperties() {
+        const loading = document.getElementById("loadingState");
+        const empty = document.getElementById("emptyState");
+        const list = document.getElementById("propertiesList");
+
+        loading.classList.remove("hidden");
+        list.innerHTML = "";
+        empty.classList.add("hidden");
+
+        // Get all hotels and filter by user
+        const result = await api.getHotels({ limit: 100 });
+
+        loading.classList.add("hidden");
+
+        if (result.ok) {
+          const user = getUser();
+          myHotels = result.data.data.filter((h) => h.user_id === user?.id);
+
+          // Update counts
+          updateTabCounts();
+
+          // Render
+          renderProperties();
+        } else {
+          showToast("Failed to load properties", "error");
+        }
+      }
+
+      // Update tab counts
+      function updateTabCounts() {
+        const allCount = myHotels.length;
+        const availableCount = myHotels.filter(
+          (h) => h.status === "available"
+        ).length;
+        const fullCount = myHotels.filter((h) => h.status === "full").length;
+
+        document.querySelector('[data-tab="all"] .tab-count').textContent =
+          allCount;
+        document.querySelector(
+          '[data-tab="available"] .tab-count'
+        ).textContent = availableCount;
+        document.querySelector('[data-tab="full"] .tab-count').textContent =
+          fullCount;
+      }
+
+      // Filter by tab
+      function filterTab(tab) {
+        currentTab = tab;
+
+        // Update tab UI
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          const isActive = btn.dataset.tab === tab;
+          btn.classList.toggle("border-text-main", isActive);
+          btn.classList.toggle("dark:border-primary", isActive);
+          btn.classList.toggle("text-text-main", isActive);
+          btn.classList.toggle("dark:text-white", isActive);
+          btn.classList.toggle("border-transparent", !isActive);
+          btn.classList.toggle("text-text-secondary", !isActive);
+          btn.classList.toggle("dark:text-gray-400", !isActive);
+        });
+
+        renderProperties();
+      }
+
+      // Render properties
+      function renderProperties() {
+        const list = document.getElementById("propertiesList");
+        const empty = document.getElementById("emptyState");
+
+        let filtered = myHotels;
+        if (currentTab !== "all") {
+          filtered = myHotels.filter((h) => h.status === currentTab);
+        }
+
+        if (filtered.length === 0) {
+          list.innerHTML = "";
+          empty.classList.remove("hidden");
+          return;
+        }
+
+        empty.classList.add("hidden");
+        list.innerHTML = filtered
+          .map((hotel) => createHotelListCard(hotel))
+          .join("");
+      }
+
+      // Override delete to refresh list
+      const originalDeleteHotel = window.deleteHotel;
+      window.deleteHotel = async (hotelId) => {
+        if (!confirm("Are you sure you want to delete this hotel?")) return;
+
+        const result = await api.deleteHotel(hotelId);
+
+        if (result.ok) {
+          showToast("Hotel deleted successfully", "success");
+          myHotels = myHotels.filter((h) => h.id !== hotelId);
+          updateTabCounts();
+          renderProperties();
+        } else {
+          showToast(result.data.message || "Failed to delete hotel", "error");
+        }
+      };
+    </script>
+  </body>
+</html>

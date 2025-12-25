@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>P2P Hotels - Login & Registration</title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2beead",
+              "background-light": "#f7f7f7",
+              "background-dark": "#221310",
+              "surface-light": "#ffffff",
+              "surface-dark": "#2a1e1d",
+              "text-main": "#222222",
+              "text-secondary": "#717171",
+              "border-light": "#dddddd",
+            },
+            fontFamily: {
+              display: ["Plus Jakarta Sans", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "0.75rem",
+              xl: "1rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <style>
+      .form-input:focus {
+        --tw-ring-color: #2beead;
+        border-color: #2beead;
+      }
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark text-text-main antialiased min-h-screen flex flex-col"
+  >
+    <!-- Navigation Bar -->
+    <header
+      class="sticky top-0 z-50 w-full bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-[#3e2c29]"
+    >
+      <div
+        class="px-6 md:px-10 lg:px-20 h-20 flex items-center justify-between"
+      >
+        <!-- Logo Section -->
+        <a
+          href="/"
+          class="flex items-center gap-2 cursor-pointer flex-shrink-0"
+        >
+          <span class="text-primary material-symbols-outlined text-[32px]"
+            >travel_explore</span
+          >
+          <h2
+            class="text-primary text-2xl font-bold tracking-tight hidden md:block"
+          >
+            P2P Hotels
+          </h2>
+        </a>
+
+        <!-- Search Bar -->
+        <div
+          class="hidden md:flex items-center justify-center flex-1 px-8 max-w-lg"
+        >
+          <a
+            href="/"
+            class="flex items-center w-full shadow-sm hover:shadow-md transition-shadow border border-border-light dark:border-[#55423d] rounded-full py-2.5 px-4 bg-white dark:bg-[#332522] cursor-pointer"
+          >
+            <span
+              class="flex-1 text-sm font-semibold text-text-main dark:text-gray-200 truncate border-r border-border-light dark:border-[#55423d] px-2 text-center"
+              >Anywhere</span
+            >
+            <span
+              class="flex-1 text-sm font-semibold text-text-main dark:text-gray-200 truncate border-r border-border-light dark:border-[#55423d] px-2 text-center"
+              >Any week</span
+            >
+            <span
+              class="flex-1 text-sm text-text-secondary dark:text-gray-400 truncate px-2 text-center font-normal"
+              >Add guests</span
+            >
+            <div class="bg-primary p-2 rounded-full text-white ml-2">
+              <span class="material-symbols-outlined text-[16px] block"
+                >search</span
+              >
+            </div>
+          </a>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="flex items-center justify-end gap-2 flex-shrink-0">
+          <a
+            class="text-sm font-semibold px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#3e2c29] rounded-full transition-colors truncate hidden sm:block dark:text-white"
+            href="/"
+          >
+            Browse Hotels
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center py-12 px-4 sm:px-6">
+      <!-- Authentication Card -->
+      <div
+        class="w-full max-w-[568px] bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-[#3e2c29] shadow-lg dark:shadow-none overflow-hidden flex flex-col"
+      >
+        <!-- Card Header -->
+        <div
+          class="flex items-center justify-between border-b border-border-light dark:border-[#3e2c29] px-6 py-4"
+        >
+          <a
+            href="/"
+            class="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-[#3e2c29] rounded-full transition-colors"
+          >
+            <span
+              class="material-symbols-outlined text-[18px] text-text-main dark:text-white"
+              >arrow_back</span
+            >
+          </a>
+          <h3
+            id="formTitle"
+            class="text-base font-bold text-text-main dark:text-white"
+          >
+            Log in
+          </h3>
+          <div class="w-8"></div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="p-6">
+          <!-- Headline -->
+          <h2
+            class="text-[22px] font-semibold text-text-main dark:text-white mb-6"
+          >
+            Welcome to P2P Hotels
+          </h2>
+
+          <!-- Login Form -->
+          <form id="loginForm" class="flex flex-col gap-4">
+            <!-- Email Field -->
+            <div class="relative">
+              <input
+                class="peer block w-full rounded-lg border border-gray-400 dark:border-gray-600 bg-transparent px-4 pb-2.5 pt-5 text-base text-text-main dark:text-white focus:border-primary dark:focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-shadow"
+                id="loginEmail"
+                placeholder=" "
+                type="email"
+                required
+              />
+              <label
+                class="absolute left-4 top-4 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-text-secondary dark:text-gray-400 duration-150 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75"
+                for="loginEmail"
+                >Email</label
+              >
+            </div>
+
+            <!-- Password Field -->
+            <div class="relative">
+              <input
+                class="peer block w-full rounded-lg border border-gray-400 dark:border-gray-600 bg-transparent px-4 pb-2.5 pt-5 text-base text-text-main dark:text-white focus:border-primary dark:focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-shadow"
+                id="loginPassword"
+                placeholder=" "
+                type="password"
+                required
+              />
+              <label
+                class="absolute left-4 top-4 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-text-secondary dark:text-gray-400 duration-150 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75"
+                for="loginPassword"
+                >Password</label
+              >
+              <button
+                type="button"
+                onclick="togglePasswordVisibility('loginPassword')"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-text-main dark:text-white font-medium text-sm underline"
+              >
+                Show
+              </button>
+            </div>
+
+            <div id="loginError" class="hidden text-red-500 text-sm"></div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="mt-2 w-full bg-primary hover:bg-[#25dcb8] text-[#111816] text-base font-bold py-3.5 rounded-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <span id="loginBtnText">Continue</span>
+            </button>
+          </form>
+
+          <!-- Register Form (Hidden by default) -->
+          <form id="registerForm" class="hidden flex flex-col gap-4">
+            <!-- Username Field -->
+            <div class="relative">
+              <input
+                class="peer block w-full rounded-lg border border-gray-400 dark:border-gray-600 bg-transparent px-4 pb-2.5 pt-5 text-base text-text-main dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-shadow"
+                id="registerUsername"
+                placeholder=" "
+                type="text"
+                required
+              />
+              <label
+                class="absolute left-4 top-4 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-text-secondary dark:text-gray-400 duration-150 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75"
+                for="registerUsername"
+                >Username</label
+              >
+            </div>
+
+            <!-- Email Field -->
+            <div class="relative">
+              <input
+                class="peer block w-full rounded-lg border border-gray-400 dark:border-gray-600 bg-transparent px-4 pb-2.5 pt-5 text-base text-text-main dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-shadow"
+                id="registerEmail"
+                placeholder=" "
+                type="email"
+                required
+              />
+              <label
+                class="absolute left-4 top-4 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-text-secondary dark:text-gray-400 duration-150 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75"
+                for="registerEmail"
+                >Email</label
+              >
+            </div>
+
+            <!-- Password Field -->
+            <div class="relative">
+              <input
+                class="peer block w-full rounded-lg border border-gray-400 dark:border-gray-600 bg-transparent px-4 pb-2.5 pt-5 text-base text-text-main dark:text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-shadow"
+                id="registerPassword"
+                placeholder=" "
+                type="password"
+                required
+                minlength="6"
+              />
+              <label
+                class="absolute left-4 top-4 z-10 origin-[0] -translate-y-2.5 scale-75 transform text-sm text-text-secondary dark:text-gray-400 duration-150 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75"
+                for="registerPassword"
+                >Password (min 6 chars)</label
+              >
+            </div>
+
+            <div id="registerError" class="hidden text-red-500 text-sm"></div>
+
+            <div class="text-xs text-text-secondary dark:text-gray-400 mt-1">
+              By signing up, you agree to our
+              <a
+                class="underline text-text-main dark:text-white font-medium"
+                href="#"
+                >Privacy Policy</a
+              >
+              and
+              <a
+                class="underline text-text-main dark:text-white font-medium"
+                href="#"
+                >Terms of Service</a
+              >.
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="mt-2 w-full bg-primary hover:bg-[#25dcb8] text-[#111816] text-base font-bold py-3.5 rounded-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <span id="registerBtnText">Sign Up</span>
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="flex items-center gap-4 py-6">
+            <div class="h-px bg-border-light dark:bg-[#3e2c29] flex-1"></div>
+            <span
+              class="text-xs text-text-secondary dark:text-gray-400 font-medium"
+              >or</span
+            >
+            <div class="h-px bg-border-light dark:bg-[#3e2c29] flex-1"></div>
+          </div>
+
+          <!-- Social Login Buttons -->
+          <div class="flex flex-col gap-3">
+            <button
+              class="relative flex items-center justify-center w-full border border-gray-800 dark:border-gray-400 hover:bg-gray-50 dark:hover:bg-[#332522] rounded-lg py-3 transition-colors group opacity-50 cursor-not-allowed"
+              disabled
+            >
+              <svg
+                class="absolute left-5 w-5 h-5"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4"
+                ></path>
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                ></path>
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                ></path>
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                ></path>
+              </svg>
+              <span class="text-sm font-semibold text-text-main dark:text-white"
+                >Continue with Google (Coming Soon)</span
+              >
+            </button>
+          </div>
+        </div>
+
+        <!-- Footer of Card -->
+        <div
+          class="px-6 py-5 bg-gray-50 dark:bg-[#2d2220] border-t border-border-light dark:border-[#3e2c29] text-center"
+        >
+          <p
+            id="switchFormText"
+            class="text-sm text-text-main dark:text-gray-300"
+          >
+            Don't have an account?
+            <button
+              type="button"
+              onclick="toggleForms()"
+              class="font-bold text-primary hover:underline ml-1"
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Simple Footer -->
+    <footer
+      class="bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-[#3e2c29] py-6 px-6 md:px-20 hidden md:block"
+    >
+      <div
+        class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-secondary dark:text-gray-400"
+      >
+        <div class="flex gap-2">
+          <span>© 2024 P2P Hotels, Inc.</span>
+          <span>·</span>
+          <a class="hover:underline" href="#">Privacy</a>
+          <span>·</span>
+          <a class="hover:underline" href="#">Terms</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/hotels.js"></script>
+    <script>
+      let isLoginMode = true;
+
+      // Check if already logged in
+      document.addEventListener("DOMContentLoaded", () => {
+        if (isLoggedIn()) {
+          window.location.href = "/";
+          return;
+        }
+
+        // Check URL params for register mode
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("register") === "true") {
+          toggleForms();
+        }
+      });
+
+      // Toggle password visibility
+      function togglePasswordVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const btn = input.nextElementSibling.nextElementSibling;
+        if (input.type === "password") {
+          input.type = "text";
+          btn.textContent = "Hide";
+        } else {
+          input.type = "password";
+          btn.textContent = "Show";
+        }
+      }
+
+      // Toggle between login and register forms
+      function toggleForms() {
+        isLoginMode = !isLoginMode;
+
+        document
+          .getElementById("loginForm")
+          .classList.toggle("hidden", !isLoginMode);
+        document
+          .getElementById("registerForm")
+          .classList.toggle("hidden", isLoginMode);
+        document.getElementById("formTitle").textContent = isLoginMode
+          ? "Log in"
+          : "Sign up";
+        document.getElementById("switchFormText").innerHTML = isLoginMode
+          ? `Don't have an account? <button type="button" onclick="toggleForms()" class="font-bold text-primary hover:underline ml-1">Sign up</button>`
+          : `Already have an account? <button type="button" onclick="toggleForms()" class="font-bold text-primary hover:underline ml-1">Log in</button>`;
+      }
+
+      // Login form submission
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          const btn = e.target.querySelector('button[type="submit"]');
+          const errorDiv = document.getElementById("loginError");
+
+          // Clear error
+          errorDiv.classList.add("hidden");
+
+          // Show loading
+          btn.disabled = true;
+          document.getElementById("loginBtnText").innerHTML =
+            '<div class="spinner"></div>';
+
+          const result = await handleLogin(email, password);
+
+          // Reset button
+          btn.disabled = false;
+          document.getElementById("loginBtnText").textContent = "Continue";
+
+          if (result.success) {
+            showToast("Welcome back!", "success");
+            window.location.href = "/";
+          } else {
+            errorDiv.textContent = result.message;
+            errorDiv.classList.remove("hidden");
+          }
+        });
+
+      // Register form submission
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const username = document.getElementById("registerUsername").value;
+          const email = document.getElementById("registerEmail").value;
+          const password = document.getElementById("registerPassword").value;
+          const btn = e.target.querySelector('button[type="submit"]');
+          const errorDiv = document.getElementById("registerError");
+
+          // Clear error
+          errorDiv.classList.add("hidden");
+
+          // Show loading
+          btn.disabled = true;
+          document.getElementById("registerBtnText").innerHTML =
+            '<div class="spinner"></div>';
+
+          const result = await handleRegister(username, email, password);
+
+          // Reset button
+          btn.disabled = false;
+          document.getElementById("registerBtnText").textContent = "Sign Up";
+
+          if (result.success) {
+            showToast("Account created successfully!", "success");
+            window.location.href = "/";
+          } else {
+            errorDiv.textContent = result.message;
+            errorDiv.classList.remove("hidden");
+          }
+        });
+    </script>
+  </body>
+</html>

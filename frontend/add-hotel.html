@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>P2P Hotels - Add New Property</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2beead",
+              "background-light": "#f6f8f7",
+              "background-dark": "#10221c",
+              "text-main": "#111816",
+              "text-muted": "#61897c",
+              "border-color": "#dbe6e2",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+              body: ["Noto Sans", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden font-display text-text-main dark:text-white"
+    >
+      <!-- Navigation Bar -->
+      <div
+        class="layout-container flex w-full flex-col bg-white dark:bg-[#1a2e26] border-b border-border-color dark:border-[#2a4036] z-20"
+      >
+        <header
+          class="flex items-center justify-between whitespace-nowrap px-4 md:px-10 py-3 max-w-[1440px] mx-auto w-full"
+        >
+          <div class="flex items-center gap-8">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 cursor-pointer">
+              <div class="size-8 text-primary">
+                <span class="material-symbols-outlined text-[32px]"
+                  >travel_explore</span
+                >
+              </div>
+              <h2
+                class="text-text-main dark:text-white text-xl font-bold leading-tight tracking-[-0.015em] hidden sm:block"
+              >
+                P2P Hotels
+              </h2>
+            </a>
+          </div>
+
+          <!-- Right Actions -->
+          <div class="flex flex-1 justify-end gap-4 md:gap-8 items-center">
+            <a
+              href="/"
+              class="text-text-main dark:text-white text-sm font-bold leading-normal hover:bg-gray-100 dark:hover:bg-[#2a4036] px-3 py-2 rounded-full transition-colors"
+              >Cancel</a
+            >
+          </div>
+        </header>
+      </div>
+
+      <!-- Main Content -->
+      <main class="flex-1 flex flex-col items-center pb-24 w-full">
+        <div class="w-full max-w-[720px] px-4 md:px-0 flex flex-col">
+          <!-- Progress Bar (simplified) -->
+          <div class="flex flex-col gap-3 py-8 w-full">
+            <div class="flex gap-6 justify-between items-center">
+              <p
+                id="stepLabel"
+                class="text-text-main dark:text-white text-sm font-bold leading-normal"
+              >
+                Add Hotel
+              </p>
+              <p
+                class="text-text-muted text-sm font-medium leading-normal hidden sm:block"
+              >
+                Fill in all details
+              </p>
+            </div>
+            <div
+              class="rounded-full bg-border-color dark:bg-[#2a4036] h-2 w-full overflow-hidden"
+            >
+              <div
+                id="progressBar"
+                class="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                style="width: 100%"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Headline -->
+          <h1
+            id="pageTitle"
+            class="text-text-main dark:text-white tracking-tight text-[32px] md:text-[40px] font-bold leading-tight pb-8 text-left"
+          >
+            Add a new property
+          </h1>
+
+          <!-- Form -->
+          <form id="hotelForm" class="flex flex-col gap-8 w-full">
+            <!-- Title Input -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >Hotel Name *</label
+              >
+              <p class="text-text-muted text-sm pb-2">
+                Catch guests' attention with a listing title that highlights
+                what makes your place special.
+              </p>
+              <input
+                id="hotelName"
+                required
+                class="form-input flex w-full resize-none overflow-hidden rounded-xl text-text-main dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] focus:border-transparent h-14 placeholder:text-text-muted p-[15px] text-base font-normal leading-normal transition-all shadow-sm"
+                placeholder="e.g. Riad Marrakech Palace"
+              />
+            </div>
+
+            <!-- Location -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >City *</label
+              >
+              <input
+                id="hotelCity"
+                required
+                class="form-input flex w-full resize-none overflow-hidden rounded-xl text-text-main dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] focus:border-transparent h-14 placeholder:text-text-muted p-[15px] text-base font-normal leading-normal transition-all shadow-sm"
+                placeholder="e.g. Marrakech, Morocco"
+              />
+            </div>
+
+            <!-- Price Input -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >Price per Night ($) *</label
+              >
+              <p class="text-text-muted text-sm pb-2">
+                You can change this at any time.
+              </p>
+              <div class="relative flex items-center">
+                <div
+                  class="absolute left-4 top-1/2 -translate-y-1/2 text-text-main dark:text-white font-bold text-lg"
+                >
+                  $
+                </div>
+                <input
+                  id="hotelPrice"
+                  type="number"
+                  min="1"
+                  required
+                  class="form-input flex w-full resize-none overflow-hidden rounded-xl text-text-main dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] focus:border-transparent h-14 placeholder:text-text-muted pl-10 p-[15px] text-base font-normal leading-normal shadow-sm"
+                  placeholder="150"
+                />
+              </div>
+            </div>
+
+            <!-- Star Rating -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >Star Rating *</label
+              >
+              <div class="flex gap-2" id="starRating">
+                <button
+                  type="button"
+                  onclick="setStars(1)"
+                  class="star-btn p-3 rounded-lg border border-border-color hover:border-primary transition-all"
+                  data-stars="1"
+                >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="setStars(2)"
+                  class="star-btn p-3 rounded-lg border border-border-color hover:border-primary transition-all"
+                  data-stars="2"
+                >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="setStars(3)"
+                  class="star-btn p-3 rounded-lg border border-border-color hover:border-primary transition-all"
+                  data-stars="3"
+                >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="setStars(4)"
+                  class="star-btn p-3 rounded-lg border border-border-color hover:border-primary transition-all"
+                  data-stars="4"
+                >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="setStars(5)"
+                  class="star-btn p-3 rounded-lg border border-border-color hover:border-primary transition-all"
+                  data-stars="5"
+                >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                  <span class="material-symbols-outlined text-yellow-400"
+                    >star</span
+                  >
+                </button>
+              </div>
+              <input
+                type="hidden"
+                id="hotelStars"
+                name="stars"
+                required
+                value=""
+              />
+            </div>
+
+            <!-- Status -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >Status</label
+              >
+              <select
+                id="hotelStatus"
+                class="form-select flex w-full appearance-none rounded-xl text-text-main dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] focus:border-transparent h-14 placeholder:text-text-muted px-[15px] text-base font-normal leading-normal shadow-sm cursor-pointer"
+              >
+                <option value="available">Available</option>
+                <option value="full">Full</option>
+              </select>
+            </div>
+
+            <!-- Amenities Grid -->
+            <div class="flex flex-col gap-4">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >Amenities (Select what you offer)</label
+              >
+              <div
+                id="amenitiesGrid"
+                class="grid grid-cols-2 md:grid-cols-3 gap-4"
+              >
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'wifi')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >wifi</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Wi-Fi</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'kitchen')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >kitchen</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Kitchen</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'pool')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >pool</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Pool</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'parking')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >local_parking</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Parking</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'ac')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >ac_unit</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Air Conditioning</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'workspace')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >work</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Workspace</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'spa')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >spa</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Spa</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'restaurant')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >restaurant</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Restaurant</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleAmenity(this, 'gym')"
+                  class="amenity-btn flex flex-col items-start gap-3 p-4 rounded-xl border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] cursor-pointer transition-all hover:border-primary text-left group"
+                >
+                  <span
+                    class="material-symbols-outlined text-text-muted group-hover:text-primary"
+                    >fitness_center</span
+                  >
+                  <span
+                    class="text-text-main dark:text-white font-medium text-sm"
+                    >Gym</span
+                  >
+                </button>
+              </div>
+            </div>
+
+            <!-- Image URL -->
+            <div class="flex flex-col gap-2">
+              <label
+                class="text-text-main dark:text-white text-base font-bold leading-normal"
+                >Image URL</label
+              >
+              <p class="text-text-muted text-sm pb-2">
+                Provide a URL to an image of your property.
+              </p>
+              <input
+                id="hotelImage"
+                type="url"
+                class="form-input flex w-full resize-none overflow-hidden rounded-xl text-text-main dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-border-color dark:border-[#2a4036] bg-white dark:bg-[#1a2e26] focus:border-transparent h-14 placeholder:text-text-muted p-[15px] text-base font-normal leading-normal transition-all shadow-sm"
+                placeholder="https://example.com/hotel-image.jpg"
+              />
+
+              <!-- Image Preview -->
+              <div
+                id="imagePreview"
+                class="hidden mt-2 rounded-xl overflow-hidden"
+              >
+                <img
+                  id="previewImg"
+                  src=""
+                  alt="Preview"
+                  class="w-full h-48 object-cover"
+                />
+              </div>
+            </div>
+
+            <div id="formError" class="hidden text-red-500 text-sm"></div>
+          </form>
+        </div>
+      </main>
+
+      <!-- Sticky Footer -->
+      <div
+        class="fixed bottom-0 left-0 w-full bg-white dark:bg-[#1a2e26] border-t border-border-color dark:border-[#2a4036] py-4 z-10"
+      >
+        <div
+          class="max-w-[720px] mx-auto px-4 md:px-0 flex justify-between items-center w-full"
+        >
+          <a
+            href="/"
+            class="text-text-main dark:text-white font-bold text-sm underline decoration-transparent hover:decoration-text-main transition-all px-4 py-2"
+          >
+            Cancel
+          </a>
+          <button
+            type="submit"
+            form="hotelForm"
+            id="submitBtn"
+            class="bg-primary hover:bg-primary/90 text-[#111816] font-bold text-base px-8 py-3 rounded-lg shadow-sm transition-all transform active:scale-95 flex items-center gap-2"
+          >
+            <span id="submitBtnText">Save & Publish</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/hotels.js"></script>
+    <script>
+      let selectedStars = 0;
+      let selectedAmenities = [];
+      let editingHotelId = null;
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Require auth
+        if (!requireAuth()) return;
+
+        updateAuthUI();
+
+        // Check if editing
+        const params = new URLSearchParams(window.location.search);
+        editingHotelId = params.get("id");
+
+        if (editingHotelId) {
+          await loadHotelForEdit(editingHotelId);
+        }
+
+        // Image preview
+        document.getElementById("hotelImage").addEventListener("input", (e) => {
+          const url = e.target.value;
+          if (url && url.startsWith("http")) {
+            document.getElementById("previewImg").src = url;
+            document.getElementById("imagePreview").classList.remove("hidden");
+          } else {
+            document.getElementById("imagePreview").classList.add("hidden");
+          }
+        });
+      });
+
+      // Load hotel for editing
+      async function loadHotelForEdit(id) {
+        const result = await api.getHotel(id);
+
+        if (result.ok && result.data.data) {
+          const hotel = result.data.data;
+
+          // Check ownership
+          const user = getUser();
+          if (hotel.user_id !== user?.id) {
+            showToast("You can only edit your own hotels", "error");
+            window.location.href = "/my-properties.html";
+            return;
+          }
+
+          // Update page title
+          document.getElementById("pageTitle").textContent = "Edit property";
+          document.getElementById("stepLabel").textContent = "Edit Hotel";
+          document.getElementById("submitBtnText").textContent = "Save Changes";
+          document.title = "P2P Hotels - Edit Property";
+
+          // Fill form
+          document.getElementById("hotelName").value = hotel.name;
+          document.getElementById("hotelCity").value = hotel.city;
+          document.getElementById("hotelPrice").value = hotel.price_per_night;
+          document.getElementById("hotelStatus").value = hotel.status;
+          document.getElementById("hotelImage").value = hotel.image_url || "";
+
+          // Set stars
+          setStars(hotel.stars);
+
+          // Set amenities
+          if (hotel.amenities && Array.isArray(hotel.amenities)) {
+            hotel.amenities.forEach((amenity) => {
+              const btn = document.querySelector(
+                `.amenity-btn[onclick*="'${amenity}'"]`
+              );
+              if (btn) toggleAmenity(btn, amenity);
+            });
+          }
+
+          // Show image preview
+          if (hotel.image_url) {
+            document.getElementById("previewImg").src = hotel.image_url;
+            document.getElementById("imagePreview").classList.remove("hidden");
+          }
+        } else {
+          showToast("Hotel not found", "error");
+          window.location.href = "/my-properties.html";
+        }
+      }
+
+      // Set star rating
+      function setStars(num) {
+        selectedStars = num;
+        document.getElementById("hotelStars").value = num;
+
+        // Update UI
+        document.querySelectorAll(".star-btn").forEach((btn) => {
+          const stars = parseInt(btn.dataset.stars);
+          btn.classList.toggle("border-primary", stars === num);
+          btn.classList.toggle("bg-primary/10", stars === num);
+        });
+      }
+
+      // Toggle amenity
+      function toggleAmenity(btn, amenity) {
+        const index = selectedAmenities.indexOf(amenity);
+
+        if (index > -1) {
+          selectedAmenities.splice(index, 1);
+          btn.classList.remove("selected", "border-primary", "bg-primary/10");
+        } else {
+          selectedAmenities.push(amenity);
+          btn.classList.add("selected", "border-primary", "bg-primary/10");
+        }
+      }
+
+      // Form submission
+      document
+        .getElementById("hotelForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const errorDiv = document.getElementById("formError");
+          errorDiv.classList.add("hidden");
+
+          // Validate stars
+          if (!selectedStars) {
+            errorDiv.textContent = "Please select a star rating";
+            errorDiv.classList.remove("hidden");
+            return;
+          }
+
+          const hotelData = {
+            name: document.getElementById("hotelName").value,
+            city: document.getElementById("hotelCity").value,
+            price_per_night: parseFloat(
+              document.getElementById("hotelPrice").value
+            ),
+            stars: selectedStars,
+            status: document.getElementById("hotelStatus").value,
+            amenities: selectedAmenities,
+            image_url: document.getElementById("hotelImage").value || null,
+          };
+
+          const btn = document.getElementById("submitBtn");
+          btn.disabled = true;
+          document.getElementById("submitBtnText").innerHTML =
+            '<div class="spinner"></div>';
+
+          let result;
+          if (editingHotelId) {
+            result = await api.updateHotel(editingHotelId, hotelData);
+          } else {
+            result = await api.createHotel(hotelData);
+          }
+
+          btn.disabled = false;
+          document.getElementById("submitBtnText").textContent = editingHotelId
+            ? "Save Changes"
+            : "Save & Publish";
+
+          if (result.ok) {
+            showToast(
+              editingHotelId ? "Hotel updated!" : "Hotel created!",
+              "success"
+            );
+            window.location.href = "/my-properties.html";
+          } else {
+            errorDiv.textContent =
+              result.data.message || "Failed to save hotel";
+            errorDiv.classList.remove("hidden");
+          }
+        });
+    </script>
+  </body>
+</html>
