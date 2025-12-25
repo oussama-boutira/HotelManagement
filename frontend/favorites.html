@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>P2P Hotels - Your Wishlist</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#ee3e2b",
+              "background-light": "#f8f6f6",
+              "background-dark": "#221210",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+              body: ["Manrope", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              "2xl": "1rem",
+              full: "9999px",
+            },
+            boxShadow: {
+              soft: "0 2px 4px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08)",
+              hover: "0 6px 16px rgba(0,0,0,0.12)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <style>
+      .material-symbols-outlined.filled {
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      body {
+        font-family: "Manrope", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-white text-[#222222] antialiased">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+      <!-- Navbar -->
+      <header
+        class="sticky top-0 z-50 w-full border-b border-[#dddddd] bg-white px-6 py-4 md:px-10 lg:px-20"
+      >
+        <div
+          class="mx-auto flex max-w-[1280px] items-center justify-between gap-4"
+        >
+          <!-- Logo -->
+          <a
+            class="flex items-center gap-2 text-primary hover:opacity-90 transition-opacity"
+            href="/"
+          >
+            <div class="size-8">
+              <span class="material-symbols-outlined text-[32px]"
+                >travel_explore</span
+              >
+            </div>
+            <span
+              class="hidden text-xl font-bold tracking-tight text-primary md:block"
+              >P2P Hotels</span
+            >
+          </a>
+
+          <!-- Search Widget (simplified) -->
+          <a
+            href="/"
+            class="hidden md:flex flex-1 max-w-[400px] items-center justify-between rounded-full border border-[#dddddd] bg-white p-2 pl-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          >
+            <div class="flex flex-col justify-center">
+              <span class="text-sm font-semibold text-[#222222]">Anywhere</span>
+            </div>
+            <div class="h-6 w-[1px] bg-[#dddddd] mx-3"></div>
+            <div class="flex flex-col justify-center">
+              <span class="text-sm font-semibold text-[#222222]">Any week</span>
+            </div>
+            <div class="h-6 w-[1px] bg-[#dddddd] mx-3"></div>
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-normal text-[#717171]">Add guests</span>
+              <div
+                class="flex size-8 items-center justify-center rounded-full bg-primary text-white"
+              >
+                <span class="material-symbols-outlined text-[16px]"
+                  >search</span
+                >
+              </div>
+            </div>
+          </a>
+
+          <!-- Right Actions -->
+          <div class="flex items-center gap-4">
+            <a
+              class="hidden text-sm font-semibold text-[#222222] hover:bg-[#f7f7f7] px-4 py-2 rounded-full transition-colors lg:block"
+              href="/add-hotel.html"
+              >Add Property</a
+            >
+            <a
+              href="/"
+              class="flex items-center justify-center rounded-full p-2 hover:bg-[#f7f7f7] transition-colors"
+            >
+              <span class="material-symbols-outlined text-[#222222]">home</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-1 px-6 md:px-10 lg:px-20 py-8 md:py-12">
+        <div class="mx-auto max-w-[1280px]">
+          <!-- Page Heading -->
+          <div class="mb-8">
+            <h1
+              class="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-[#222222]"
+            >
+              My Favorites
+            </h1>
+            <p class="text-[#717171] mt-2">
+              Hotels you've saved to your wishlist
+            </p>
+          </div>
+
+          <!-- Loading State -->
+          <div id="loadingState" class="flex items-center justify-center py-12">
+            <div class="spinner"></div>
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="hidden empty-state">
+            <span class="material-symbols-outlined icon" style="color: #ee3e2b"
+              >favorite</span
+            >
+            <h3 class="text-xl font-bold text-[#222222] mb-2">
+              No favorites yet
+            </h3>
+            <p class="text-[#717171] mb-4">
+              Start saving hotels you love by clicking the heart icon
+            </p>
+            <a
+              href="/"
+              class="bg-primary text-white font-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors inline-flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined text-[20px]">explore</span>
+              Explore Hotels
+            </a>
+          </div>
+
+          <!-- Grid -->
+          <div
+            id="favoritesGrid"
+            class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          >
+            <!-- Favorite cards will be inserted here -->
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer
+        class="border-t border-[#dddddd] bg-[#f7f7f7] px-6 md:px-10 lg:px-20 py-10"
+      >
+        <div
+          class="mx-auto flex max-w-[1280px] flex-col gap-8 md:flex-row md:justify-between"
+        >
+          <div class="flex flex-wrap gap-x-8 gap-y-4 text-sm text-[#222222]">
+            <span class="text-[#222222]">© 2024 P2P Hotels, Inc.</span>
+            <a class="hover:underline" href="#">Privacy</a>
+            <a class="hover:underline" href="#">Terms</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/hotels.js"></script>
+    <script>
+      // Initialize
+      document.addEventListener("DOMContentLoaded", async () => {
+        if (!requireAuth()) return;
+
+        updateAuthUI();
+        await loadFavorites();
+      });
+
+      // Load favorites
+      async function loadFavorites() {
+        const loading = document.getElementById("loadingState");
+        const empty = document.getElementById("emptyState");
+        const grid = document.getElementById("favoritesGrid");
+
+        loading.classList.remove("hidden");
+        grid.innerHTML = "";
+        empty.classList.add("hidden");
+
+        const result = await api.getFavorites();
+
+        loading.classList.add("hidden");
+
+        if (result.ok && result.data.data.length > 0) {
+          grid.innerHTML = result.data.data
+            .map((hotel) => createFavoriteCard(hotel))
+            .join("");
+        } else {
+          empty.classList.remove("hidden");
+        }
+      }
+
+      // Create favorite card (similar to hotel card but with heart filled)
+      function createFavoriteCard(hotel) {
+        return `
+            <div class="group flex flex-col gap-3 cursor-pointer">
+                <div class="relative aspect-[20/19] w-full overflow-hidden rounded-xl bg-gray-200">
+                    <div class="absolute right-3 top-3 z-10">
+                        <button onclick="removeFavoriteItem(${
+                          hotel.id
+                        })" class="flex items-center justify-center hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined filled text-2xl text-primary drop-shadow-sm">favorite</span>
+                        </button>
+                    </div>
+                    <div 
+                        class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" 
+                        style="background-image: url('${
+                          hotel.image_url || DEFAULT_HOTEL_IMAGE
+                        }')"
+                        onclick="viewHotel(${hotel.id})"
+                    ></div>
+                </div>
+                <div onclick="viewHotel(${hotel.id})">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-display text-base font-bold text-[#222222]">${
+                          hotel.name
+                        }</h3>
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined filled text-sm text-[#222222]">star</span>
+                            <span class="text-sm font-light text-[#222222]">${
+                              hotel.stars || 0
+                            }</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-[#717171]">${hotel.city}</p>
+                    <p class="text-sm text-[#717171]">${
+                      hotel.amenities?.slice(0, 2).join(" · ") || "No amenities"
+                    }</p>
+                    <div class="mt-1 flex items-baseline gap-1">
+                        <span class="font-bold text-[#222222]">$${
+                          hotel.price_per_night
+                        }</span>
+                        <span class="text-sm text-[#222222]">night</span>
+                    </div>
+                </div>
+            </div>
+        `;
+      }
+
+      // Remove from favorites
+      async function removeFavoriteItem(hotelId) {
+        const result = await api.removeFavorite(hotelId);
+
+        if (result.ok) {
+          showToast("Removed from favorites", "success");
+          await loadFavorites();
+        } else {
+          showToast(result.data.message || "Failed to remove", "error");
+        }
+      }
+    </script>
+  </body>
+</html>
