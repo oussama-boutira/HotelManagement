@@ -54,6 +54,26 @@ const getCategories = async (req, res) => {
   }
 };
 
+// Get all unique cities from hotels
+const getCities = async (req, res) => {
+  try {
+    const [cities] = await pool.query(
+      "SELECT DISTINCT city FROM hotels WHERE city IS NOT NULL AND city != '' ORDER BY city ASC"
+    );
+
+    res.json({
+      success: true,
+      data: cities.map((c) => c.city),
+    });
+  } catch (error) {
+    console.error("GetCities error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error fetching cities",
+    });
+  }
+};
+
 // Get all hotels with pagination, search, and filters
 const getAllHotels = async (req, res) => {
   try {
@@ -402,6 +422,7 @@ const deleteHotel = async (req, res) => {
 
 module.exports = {
   getCategories,
+  getCities,
   getAllHotels,
   getHotelById,
   createHotel,

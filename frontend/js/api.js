@@ -94,6 +94,8 @@ const api = {
   // Hotels
   getCategories: () => apiRequest("/hotels/categories"),
 
+  getCities: () => apiRequest("/hotels/cities"),
+
   getHotels: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     return apiRequest(`/hotels${queryString ? "?" + queryString : ""}`);

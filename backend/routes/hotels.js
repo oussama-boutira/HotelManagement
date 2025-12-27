@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   getCategories,
+  getCities,
   getAllHotels,
   getHotelById,
   createHotel,
@@ -12,6 +13,7 @@ const { authMiddleware, optionalAuth } = require("../middleware/auth");
 
 // Public routes (optional auth for favorite status)
 router.get("/categories", getCategories);
+router.get("/cities", getCities);
 router.get("/", optionalAuth, getAllHotels);
 router.get("/:id", optionalAuth, getHotelById);
 

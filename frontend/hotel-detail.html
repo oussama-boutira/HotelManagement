@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Hotel Details - P2P Hotels</title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2beead",
+              "background-light": "#ffffff",
+              "background-dark": "#10221c",
+              "text-main": "#222222",
+              "text-secondary": "#717171",
+              "border-light": "#dddddd",
+            },
+            fontFamily: {
+              display: ["Plus Jakarta Sans", "sans-serif"],
+              body: ["Plus Jakarta Sans", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "0.75rem",
+              xl: "1.5rem",
+              "2xl": "2rem",
+              full: "9999px",
+            },
+            boxShadow: {
+              card: "0 2px 4px rgba(0,0,0,0.08)",
+              floating: "0 6px 16px rgba(0,0,0,0.12)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+      .material-symbols-outlined.filled {
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark text-text-main dark:text-white antialiased min-h-screen flex flex-col"
+  >
+    <!-- Navbar -->
+    <header
+      class="sticky top-0 z-50 w-full bg-white dark:bg-background-dark border-b border-border-light dark:border-gray-800"
+    >
+      <div class="px-6 md:px-12 lg:px-20 mx-auto max-w-[1920px]">
+        <div class="flex items-center justify-between h-20">
+          <!-- Logo -->
+          <a
+            class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
+            href="/"
+          >
+            <span class="material-symbols-outlined !text-4xl text-primary"
+              >travel_explore</span
+            >
+            <span
+              class="text-primary font-bold text-2xl tracking-tighter hidden md:block"
+              >P2P Hotels</span
+            >
+          </a>
+
+          <!-- Back Button -->
+          <a
+            href="/"
+            class="flex items-center gap-2 text-sm font-semibold px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-text-main dark:text-white"
+          >
+            <span class="material-symbols-outlined text-[18px]"
+              >arrow_back</span
+            >
+            <span class="hidden sm:inline">Back to Hotels</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+      <!-- Loading State -->
+      <div id="loadingState" class="flex items-center justify-center py-20">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" class="hidden empty-state py-20">
+        <span class="material-symbols-outlined icon">error</span>
+        <h3 class="text-xl font-bold text-text-main dark:text-white mb-2">
+          Hotel not found
+        </h3>
+        <p class="text-text-secondary dark:text-gray-400 mb-4">
+          The hotel you're looking for doesn't exist or has been removed.
+        </p>
+        <a
+          href="/"
+          class="bg-primary text-[#111816] font-bold px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          Browse Hotels
+        </a>
+      </div>
+
+      <!-- Hotel Detail Content -->
+      <div id="hotelContent" class="hidden">
+        <!-- Hero Image -->
+        <div
+          class="relative w-full h-[300px] md:h-[400px] lg:h-[500px] bg-gray-200"
+        >
+          <img
+            id="hotelImage"
+            class="w-full h-full object-cover"
+            alt="Hotel Image"
+          />
+          <!-- Status Badge -->
+          <div id="statusBadge" class="absolute top-6 left-6"></div>
+          <!-- Favorite Button -->
+          <button
+            id="favoriteBtn"
+            onclick="toggleFavorite()"
+            class="absolute top-6 right-6 bg-white/90 dark:bg-gray-800/90 p-3 rounded-full shadow-lg hover:scale-110 transition-transform"
+          >
+            <span
+              id="favoriteIcon"
+              class="material-symbols-outlined text-2xl text-gray-600"
+              >favorite</span
+            >
+          </button>
+        </div>
+
+        <!-- Hotel Info -->
+        <div class="px-6 md:px-12 lg:px-20 mx-auto max-w-[1200px] py-8">
+          <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left Column - Main Info -->
+            <div class="flex-grow">
+              <!-- Name and Rating -->
+              <div
+                class="flex flex-wrap items-start justify-between gap-4 mb-6"
+              >
+                <div>
+                  <h1
+                    id="hotelName"
+                    class="text-3xl md:text-4xl font-bold text-text-main dark:text-white mb-2"
+                  ></h1>
+                  <div
+                    class="flex items-center gap-2 text-text-secondary dark:text-gray-400"
+                  >
+                    <span class="material-symbols-outlined text-[20px]"
+                      >location_on</span
+                    >
+                    <span id="hotelCity" class="text-lg"></span>
+                  </div>
+                </div>
+                <!-- Star Rating -->
+                <div
+                  id="starRating"
+                  class="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full"
+                ></div>
+              </div>
+
+              <!-- Divider -->
+              <hr class="border-border-light dark:border-gray-700 my-6" />
+
+              <!-- Amenities/Categories -->
+              <div class="mb-8">
+                <h2
+                  class="text-xl font-bold text-text-main dark:text-white mb-4"
+                >
+                  Amenities & Features
+                </h2>
+                <div id="amenitiesList" class="flex flex-wrap gap-3"></div>
+              </div>
+
+              <!-- Divider -->
+              <hr class="border-border-light dark:border-gray-700 my-6" />
+
+              <!-- Description -->
+              <div class="mb-8">
+                <h2
+                  class="text-xl font-bold text-text-main dark:text-white mb-4"
+                >
+                  About This Property
+                </h2>
+                <p
+                  id="hotelDescription"
+                  class="text-text-secondary dark:text-gray-400 leading-relaxed text-base"
+                >
+                  <!-- Dynamic description will be inserted here -->
+                </p>
+              </div>
+            </div>
+
+            <!-- Right Column - Price Card -->
+            <div class="lg:w-[380px] flex-shrink-0">
+              <div
+                class="sticky top-28 bg-white dark:bg-gray-800 border border-border-light dark:border-gray-700 rounded-2xl p-6 shadow-floating"
+              >
+                <!-- Price -->
+                <div class="mb-6">
+                  <div class="flex items-baseline gap-2">
+                    <span
+                      id="hotelPrice"
+                      class="text-3xl font-bold text-text-main dark:text-white"
+                    ></span>
+                    <span class="text-text-secondary dark:text-gray-400"
+                      >/ night</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Contact/Book Button -->
+                <button
+                  class="w-full bg-primary hover:bg-[#25dcb8] text-[#10221c] font-bold text-lg py-4 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40"
+                >
+                  Contact Owner
+                </button>
+
+                <!-- Additional Info -->
+                <div
+                  class="mt-6 pt-6 border-t border-border-light dark:border-gray-700"
+                >
+                  <div class="flex items-center justify-between text-sm mb-3">
+                    <span class="text-text-secondary dark:text-gray-400"
+                      >Status</span
+                    >
+                    <span id="statusText" class="font-semibold"></span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm mb-3">
+                    <span class="text-text-secondary dark:text-gray-400"
+                      >Star Rating</span
+                    >
+                    <span id="starsText" class="font-semibold"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      class="bg-gray-100 dark:bg-gray-900 border-t border-border-light dark:border-gray-800 py-8 px-6 md:px-12 lg:px-20 mt-auto"
+    >
+      <div
+        class="max-w-[1920px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-text-secondary dark:text-gray-400"
+      >
+        <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+          <span>© 2024 P2P Hotels, Inc.</span>
+          <span class="hidden md:inline">·</span>
+          <a class="hover:underline" href="#">Privacy</a>
+          <span class="hidden md:inline">·</span>
+          <a class="hover:underline" href="#">Terms</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+      const DEFAULT_HOTEL_IMAGE =
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
+
+      let currentHotel = null;
+
+      // Get hotel ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const hotelId = urlParams.get("id");
+
+      // Icon map for amenities
+      const iconMap = {
+        wifi: "wifi",
+        pool: "pool",
+        spa: "spa",
+        gym: "fitness_center",
+        restaurant: "restaurant",
+        parking: "local_parking",
+        ac: "ac_unit",
+        kitchen: "kitchen",
+        workspace: "work",
+        beachfront: "beach_access",
+        luxury: "diamond",
+        cabin: "cabin",
+      };
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", async () => {
+        updateAuthUI();
+
+        if (!hotelId) {
+          showError();
+          return;
+        }
+
+        await loadHotelDetails();
+      });
+
+      // Load hotel details
+      async function loadHotelDetails() {
+        const loading = document.getElementById("loadingState");
+        const error = document.getElementById("errorState");
+        const content = document.getElementById("hotelContent");
+
+        const result = await api.getHotel(hotelId);
+
+        loading.classList.add("hidden");
+
+        if (result.ok && result.data.data) {
+          currentHotel = result.data.data;
+          renderHotelDetails(currentHotel);
+          content.classList.remove("hidden");
+          document.title = `${currentHotel.name} - P2P Hotels`;
+        } else {
+          showError();
+        }
+      }
+
+      // Render hotel details
+      function renderHotelDetails(hotel) {
+        // Image
+        document.getElementById("hotelImage").src =
+          hotel.image_url || DEFAULT_HOTEL_IMAGE;
+
+        // Name & City
+        document.getElementById("hotelName").textContent = hotel.name;
+        document.getElementById("hotelCity").textContent = hotel.city;
+
+        // Price
+        document.getElementById(
+          "hotelPrice"
+        ).textContent = `$${hotel.price_per_night}`;
+
+        // Stars
+        const stars = hotel.stars || 0;
+        document.getElementById("starRating").innerHTML = `
+          <span class="material-symbols-outlined filled text-yellow-500 text-[20px]">star</span>
+          <span class="font-bold text-text-main dark:text-white">${stars} Star${
+          stars !== 1 ? "s" : ""
+        }</span>
+        `;
+        document.getElementById("starsText").textContent = `${stars} Star${
+          stars !== 1 ? "s" : ""
+        }`;
+
+        // Status
+        const isAvailable = hotel.status === "available";
+        document.getElementById("statusBadge").innerHTML = `
+          <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold ${
+            isAvailable
+              ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400"
+              : "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400"
+          }">
+            <span class="material-symbols-outlined text-[16px]">${
+              isAvailable ? "check_circle" : "cancel"
+            }</span>
+            ${isAvailable ? "Available" : "Full"}
+          </span>
+        `;
+        document.getElementById("statusText").innerHTML = `
+          <span class="${isAvailable ? "text-green-600" : "text-red-600"}">${
+          isAvailable ? "Available" : "Full"
+        }</span>
+        `;
+
+        // Amenities
+        const amenities = hotel.amenities || [];
+        const amenitiesHtml =
+          amenities.length > 0
+            ? amenities
+                .map(
+                  (amenity) => `
+              <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-4 py-2.5 rounded-xl">
+                <span class="material-symbols-outlined text-primary text-[20px]">${
+                  iconMap[amenity] || "category"
+                }</span>
+                <span class="text-sm font-medium text-text-main dark:text-white">${
+                  amenity.charAt(0).toUpperCase() +
+                  amenity.slice(1).replace("_", " ")
+                }</span>
+              </div>
+            `
+                )
+                .join("")
+            : '<p class="text-text-secondary dark:text-gray-400">No amenities listed</p>';
+
+        document.getElementById("amenitiesList").innerHTML = amenitiesHtml;
+
+        // Dynamic Description
+        const starWord = stars === 1 ? "star" : "stars";
+        const amenitiesText =
+          amenities.length > 0
+            ? amenities
+                .slice(0, 3)
+                .map(
+                  (a) =>
+                    a.charAt(0).toUpperCase() + a.slice(1).replace("_", " ")
+                )
+                .join(", ")
+            : "essential amenities";
+        const statusWord = isAvailable
+          ? "currently available"
+          : "currently fully booked";
+
+        const description = `
+          Welcome to <span class="font-semibold text-text-main dark:text-white">${
+            hotel.name
+          }</span>, 
+          a beautiful <span class="font-semibold text-text-main dark:text-white">${stars}-${starWord}</span> property 
+          located in the heart of <span class="font-semibold text-text-main dark:text-white">${
+            hotel.city
+          }</span>. 
+          This exceptional accommodation offers ${amenitiesText}${
+          amenities.length > 3 ? " and more" : ""
+        } to ensure a comfortable stay. 
+          At just <span class="font-semibold text-text-main dark:text-white">$${
+            hotel.price_per_night
+          } per night</span>, 
+          it provides excellent value for travelers seeking quality and convenience. 
+          This property is <span class="font-semibold ${
+            isAvailable ? "text-green-600" : "text-red-600"
+          }">${statusWord}</span> for booking.
+        `;
+
+        document.getElementById("hotelDescription").innerHTML = description;
+
+        // Favorite status
+        updateFavoriteUI(hotel.is_favorite);
+      }
+
+      // Update favorite UI
+      function updateFavoriteUI(isFavorite) {
+        const icon = document.getElementById("favoriteIcon");
+        if (isFavorite) {
+          icon.classList.add("filled", "text-primary");
+          icon.classList.remove("text-gray-600");
+        } else {
+          icon.classList.remove("filled", "text-primary");
+          icon.classList.add("text-gray-600");
+        }
+      }
+
+      // Toggle favorite
+      async function toggleFavorite() {
+        if (!getToken()) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        if (!currentHotel) return;
+
+        const isFavorite = currentHotel.is_favorite;
+        const result = isFavorite
+          ? await api.removeFavorite(currentHotel.id)
+          : await api.addFavorite(currentHotel.id);
+
+        if (result.ok) {
+          currentHotel.is_favorite = !isFavorite;
+          updateFavoriteUI(currentHotel.is_favorite);
+          showToast(
+            isFavorite ? "Removed from favorites" : "Added to favorites",
+            "success"
+          );
+        } else {
+          showToast(
+            result.data.message || "Failed to update favorite",
+            "error"
+          );
+        }
+      }
+
+      // Show error state
+      function showError() {
+        document.getElementById("loadingState").classList.add("hidden");
+        document.getElementById("hotelContent").classList.add("hidden");
+        document.getElementById("errorState").classList.remove("hidden");
+      }
+
+      // Toast function (from hotels.js)
+      function showToast(message, type = "info") {
+        const existing = document.querySelector(".toast");
+        if (existing) existing.remove();
+
+        const toast = document.createElement("div");
+        toast.className = `toast fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 text-white font-medium ${
+          type === "success"
+            ? "bg-green-600"
+            : type === "error"
+            ? "bg-red-600"
+            : "bg-gray-800"
+        }`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => toast.remove(), 3000);
+      }
+    </script>
+  </body>
+</html>
