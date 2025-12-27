@@ -15,12 +15,12 @@ const triggerScraping = async (req, res) => {
 
     const webhookUrl = process.env.N8N_WEBHOOK_URL;
 
-    if (!webhookUrl || webhookUrl === "https://your-n8n.app/webhook/scraping") {
+    if (!webhookUrl) {
       // Return mock response if n8n is not configured
       return res.json({
         success: true,
         message: "Scraping triggered (demo mode - n8n not configured)",
-        sheetUrl: "https://docs.google.com/spreadsheets/d/demo-sheet-id",
+        sheetUrl: "https://docs.google.com/spreadsheets/d/1De7XSybchpAk_Mne-lQVgN0EmchODsboeT_1lfkG860/edit?gid=0#gid=0",
         demo: true,
       });
     }
