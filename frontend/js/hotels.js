@@ -217,9 +217,7 @@ const toggleFavorite = async (hotelId) => {
 
 // View hotel details
 const viewHotel = (hotelId) => {
-  // For now, just show in modal or navigate
-  console.log("View hotel:", hotelId);
-  // Could implement modal or detail page
+  window.location.href = `/hotel-detail.html?id=${hotelId}`;
 };
 
 // Edit hotel

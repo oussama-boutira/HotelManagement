@@ -90,7 +90,7 @@
         </div>
       </div>
     </header> -->
-<header
+    <header
       class="sticky top-0 z-50 w-full bg-white dark:bg-background-dark border-b border-border-light dark:border-gray-800"
     >
       <div class="px-6 md:px-12 lg:px-20 mx-auto max-w-[1920px]">
@@ -108,7 +108,7 @@
               >P2P Hotels</span
             >
           </a>
-          
+
           <!-- Right Actions -->
           <div class="flex items-center justify-end gap-2">
             <!-- Scraping Tool Button (logged in only) -->
@@ -288,6 +288,128 @@
       </div>
     </main>
 
+    <!-- Scraping Modal -->
+    <div id="scrapingModal" class="modal-backdrop">
+      <div
+        class="relative w-full max-w-[520px] bg-white dark:bg-background-dark rounded-2xl shadow-2xl transform transition-all flex flex-col overflow-hidden ring-1 ring-black/5 mx-4"
+      >
+        <!-- Modal Header -->
+        <div class="px-8 pt-8 pb-2 flex justify-between items-start">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2 mb-2">
+              <span
+                class="bg-primary/20 text-[#0d4e3a] dark:text-primary p-1.5 rounded-lg"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >analytics</span
+                >
+              </span>
+              <span
+                class="text-xs font-bold tracking-wider text-primary uppercase"
+                >Market Tool</span
+              >
+            </div>
+            <h2
+              class="text-text-main dark:text-white text-[28px] font-bold leading-tight tracking-tight"
+            >
+              Market Insights
+            </h2>
+          </div>
+          <button
+            onclick="closeScrapingModal()"
+            class="text-text-secondary hover:text-text-main dark:hover:text-white transition-colors rounded-full p-2 hover:bg-gray-100 dark:hover:bg-[#1e3a32]"
+          >
+            <span class="material-symbols-outlined text-[24px]">close</span>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="px-8 pb-6">
+          <p
+            class="text-text-secondary dark:text-gray-400 text-base font-normal leading-normal"
+          >
+            Find hotels in your area to analyze market competition. Results will
+            be exported to Google Sheets.
+          </p>
+        </div>
+
+        <!-- Modal Form -->
+        <form id="scrapingForm" class="px-8 flex flex-col gap-5">
+          <label class="flex flex-col gap-2 group">
+            <span
+              class="text-text-main dark:text-white text-sm font-semibold leading-normal"
+              >Enter City</span
+            >
+            <div class="relative flex items-center">
+              <span
+                class="material-symbols-outlined absolute left-4 text-text-secondary pointer-events-none"
+                >location_on</span
+              >
+              <input
+                type="text"
+                id="scrapingCity"
+                required
+                class="w-full rounded-xl border border-border-light dark:border-[#2a453c] bg-gray-50 dark:bg-[#152a24] h-14 pl-12 pr-4 text-base text-text-main dark:text-white placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm"
+                placeholder="e.g. Marrakech"
+              />
+            </div>
+          </label>
+
+          <label class="flex flex-col gap-2 group">
+            <span
+              class="text-text-main dark:text-white text-sm font-semibold leading-normal"
+              >Enter Keyword</span
+            >
+            <div class="relative flex items-center">
+              <span
+                class="material-symbols-outlined absolute left-4 text-text-secondary pointer-events-none"
+                >key</span
+              >
+              <input
+                type="text"
+                id="scrapingKeyword"
+                required
+                class="w-full rounded-xl border border-border-light dark:border-[#2a453c] bg-gray-50 dark:bg-[#152a24] h-14 pl-12 pr-4 text-base text-text-main dark:text-white placeholder:text-text-secondary focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm"
+                placeholder="e.g. luxury hotel, riad"
+                value="hotel"
+              />
+            </div>
+          </label>
+        </form>
+
+        <!-- Modal Footer -->
+        <div class="p-8 pt-6 mt-2">
+          <button
+            type="submit"
+            form="scrapingForm"
+            onclick="triggerScrapingWorkflow(event)"
+            class="group relative w-full flex items-center justify-center gap-3 bg-primary hover:bg-[#25dcb8] active:bg-[#1ebf9f] text-[#10221c] font-bold text-lg h-14 rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 transform hover:-translate-y-0.5"
+          >
+            <span class="material-symbols-outlined">search</span>
+            <span>Run Analysis</span>
+          </button>
+          <div
+            class="mt-4 flex items-center justify-center gap-2 text-text-secondary dark:text-gray-500 text-sm"
+          >
+            <span class="material-symbols-outlined text-[18px]"
+              >table_view</span
+            >
+            <p>
+              Results will open in
+              <span class="font-medium text-text-main dark:text-white"
+                >Google Sheets</span
+              >
+            </p>
+          </div>
+        </div>
+
+        <!-- Decorative gradient line -->
+        <div
+          class="h-1.5 w-full bg-gradient-to-r from-primary/40 via-primary to-primary/40"
+        ></div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
@@ -332,7 +454,49 @@
           showToast("Failed to load properties", "error");
         }
       }
-function toggleUserMenu() {
+
+      // Scraping modal
+      function openScrapingModal() {
+        document.getElementById("scrapingModal").classList.add("show");
+      }
+
+      function closeScrapingModal() {
+        document.getElementById("scrapingModal").classList.remove("show");
+      }
+
+      async function triggerScrapingWorkflow(e) {
+        e.preventDefault();
+
+        const city = document.getElementById("scrapingCity").value;
+        const keyword = document.getElementById("scrapingKeyword").value;
+
+        if (!city || !keyword) {
+          showToast("Please fill in all fields", "error");
+          return;
+        }
+
+        const btn = e.target.closest("button");
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div><span>Running...</span>';
+
+        const result = await api.triggerScraping(city, keyword);
+
+        btn.disabled = false;
+        btn.innerHTML =
+          '<span class="material-symbols-outlined">search</span><span>Run Analysis</span>';
+
+        if (result.ok && result.data.success) {
+          showToast("Analysis complete!", "success");
+          if (result.data.sheetUrl) {
+            window.open(result.data.sheetUrl, "_blank");
+          }
+          closeScrapingModal();
+        } else {
+          showToast(result.data.message || "Failed to run analysis", "error");
+        }
+      }
+
+      function toggleUserMenu() {
         document.getElementById("userMenu").classList.toggle("hidden");
       }
       // Update tab counts
