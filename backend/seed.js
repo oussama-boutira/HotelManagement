@@ -129,32 +129,32 @@ async function seedHotels() {
     console.log("🌱 Seeding hotels...");
 
     // Check if user exists, if not create one
-    const [users] = await pool.query("SELECT id FROM users LIMIT 1");
+    const users = await pool.query("SELECT id FROM users LIMIT 1");
     let userId;
 
-    if (users.length === 0) {
+    if (users.rows.length === 0) {
       // Create a default user
       const bcrypt = require("bcryptjs");
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash("password123", salt);
 
-      const [result] = await pool.query(
-        "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+      const result = await pool.query(
+        "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
         ["admin", "admin@hotels.com", hash]
       );
-      userId = result.insertId;
+      userId = result.rows[0].id;
       console.log(
         "✅ Created admin user (email: admin@hotels.com, password: password123)"
       );
     } else {
-      userId = users[0].id;
+      userId = users.rows[0].id;
     }
 
     // Insert hotels
     for (const hotel of sampleHotels) {
       await pool.query(
         `INSERT INTO hotels (name, city, stars, price_per_night, amenities, status, image_url, user_id)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
         [
           hotel.name,
           hotel.city,

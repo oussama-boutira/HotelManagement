@@ -4,17 +4,14 @@ const { validateHotel } = require("../utils/validators");
 // Get all unique amenities/categories
 const getCategories = async (req, res) => {
   try {
-    const [hotels] = await pool.query(
+    const hotels = await pool.query(
       "SELECT amenities FROM hotels WHERE amenities IS NOT NULL"
     );
 
     // Extract all unique amenities
     const allAmenities = new Set();
-    hotels.forEach((hotel) => {
-      const amenities =
-        typeof hotel.amenities === "string"
-          ? JSON.parse(hotel.amenities)
-          : hotel.amenities || [];
+    hotels.rows.forEach((hotel) => {
+      const amenities = hotel.amenities || [];
       amenities.forEach((a) => allAmenities.add(a));
     });
 
@@ -57,13 +54,13 @@ const getCategories = async (req, res) => {
 // Get all unique cities from hotels
 const getCities = async (req, res) => {
   try {
-    const [cities] = await pool.query(
+    const cities = await pool.query(
       "SELECT DISTINCT city FROM hotels WHERE city IS NOT NULL AND city != '' ORDER BY city ASC"
     );
 
     res.json({
       success: true,
-      data: cities.map((c) => c.city),
+      data: cities.rows.map((c) => c.city),
     });
   } catch (error) {
     console.error("GetCities error:", error);
@@ -93,74 +90,73 @@ const getAllHotels = async (req, res) => {
     let countQuery = "SELECT COUNT(*) as total FROM hotels WHERE 1=1";
     const params = [];
     const countParams = [];
+    let paramIndex = 1;
+    let countParamIndex = 1;
 
     // Search by name
     if (search) {
-      query += " AND h.name LIKE ?";
-      countQuery += " AND name LIKE ?";
+      query += ` AND h.name ILIKE $${paramIndex++}`;
+      countQuery += ` AND name ILIKE $${countParamIndex++}`;
       params.push(`%${search}%`);
       countParams.push(`%${search}%`);
     }
 
     // Filter by city
     if (city) {
-      query += " AND h.city LIKE ?";
-      countQuery += " AND city LIKE ?";
+      query += ` AND h.city ILIKE $${paramIndex++}`;
+      countQuery += ` AND city ILIKE $${countParamIndex++}`;
       params.push(`%${city}%`);
       countParams.push(`%${city}%`);
     }
 
     // Filter by status
     if (status) {
-      query += " AND h.status = ?";
-      countQuery += " AND status = ?";
+      query += ` AND h.status = $${paramIndex++}`;
+      countQuery += ` AND status = $${countParamIndex++}`;
       params.push(status);
       countParams.push(status);
     }
 
     // Filter by stars
     if (stars) {
-      query += " AND h.stars = ?";
-      countQuery += " AND stars = ?";
+      query += ` AND h.stars = $${paramIndex++}`;
+      countQuery += ` AND stars = $${countParamIndex++}`;
       params.push(parseInt(stars));
       countParams.push(parseInt(stars));
     }
 
-    // Filter by amenity (search in JSON array)
+    // Filter by amenity (search in JSONB array)
     if (amenity) {
-      query += " AND JSON_CONTAINS(h.amenities, ?)";
-      countQuery += " AND JSON_CONTAINS(amenities, ?)";
-      params.push(JSON.stringify(amenity));
-      countParams.push(JSON.stringify(amenity));
+      query += ` AND h.amenities @> $${paramIndex++}::jsonb`;
+      countQuery += ` AND amenities @> $${countParamIndex++}::jsonb`;
+      params.push(JSON.stringify([amenity]));
+      countParams.push(JSON.stringify([amenity]));
     }
 
     // Add ordering and pagination
-    query += " ORDER BY h.created_at DESC LIMIT ? OFFSET ?";
+    query += ` ORDER BY h.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
     params.push(parseInt(limit), offset);
 
     // Execute queries
-    const [hotels] = await pool.query(query, params);
-    const [countResult] = await pool.query(countQuery, countParams);
+    const hotels = await pool.query(query, params);
+    const countResult = await pool.query(countQuery, countParams);
 
-    const totalItems = countResult[0].total;
+    const totalItems = parseInt(countResult.rows[0].total);
     const totalPages = Math.ceil(totalItems / parseInt(limit));
 
-    // Parse amenities JSON and add favorite status
-    let processedHotels = hotels.map((h) => ({
+    // Parse amenities (JSONB is already parsed by pg driver)
+    let processedHotels = hotels.rows.map((h) => ({
       ...h,
-      amenities:
-        typeof h.amenities === "string"
-          ? JSON.parse(h.amenities)
-          : h.amenities || [],
+      amenities: h.amenities || [],
     }));
 
     // If user is logged in, add favorite status
     if (req.user) {
-      const [favorites] = await pool.query(
-        "SELECT hotel_id FROM favorites WHERE user_id = ?",
+      const favorites = await pool.query(
+        "SELECT hotel_id FROM favorites WHERE user_id = $1",
         [req.user.id]
       );
-      const favoriteIds = favorites.map((f) => f.hotel_id);
+      const favoriteIds = favorites.rows.map((f) => f.hotel_id);
       processedHotels = processedHotels.map((h) => ({
         ...h,
         is_favorite: favoriteIds.includes(h.id),
@@ -191,12 +187,12 @@ const getHotelById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const [hotels] = await pool.query(
-      "SELECT h.*, u.username as owner_name FROM hotels h LEFT JOIN users u ON h.user_id = u.id WHERE h.id = ?",
+    const hotels = await pool.query(
+      "SELECT h.*, u.username as owner_name FROM hotels h LEFT JOIN users u ON h.user_id = u.id WHERE h.id = $1",
       [id]
     );
 
-    if (hotels.length === 0) {
+    if (hotels.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Hotel not found",
@@ -204,20 +200,17 @@ const getHotelById = async (req, res) => {
     }
 
     let hotel = {
-      ...hotels[0],
-      amenities:
-        typeof hotels[0].amenities === "string"
-          ? JSON.parse(hotels[0].amenities)
-          : hotels[0].amenities || [],
+      ...hotels.rows[0],
+      amenities: hotels.rows[0].amenities || [],
     };
 
     // Check if favorite for logged in user
     if (req.user) {
-      const [favorites] = await pool.query(
-        "SELECT id FROM favorites WHERE user_id = ? AND hotel_id = ?",
+      const favorites = await pool.query(
+        "SELECT id FROM favorites WHERE user_id = $1 AND hotel_id = $2",
         [req.user.id, id]
       );
-      hotel.is_favorite = favorites.length > 0;
+      hotel.is_favorite = favorites.rows.length > 0;
     }
 
     res.json({
@@ -248,9 +241,9 @@ const createHotel = async (req, res) => {
       });
     }
 
-    const [result] = await pool.query(
+    const result = await pool.query(
       `INSERT INTO hotels (name, city, stars, price_per_night, amenities, status, image_url, user_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
         name.trim(),
         city.trim(),
@@ -263,15 +256,10 @@ const createHotel = async (req, res) => {
       ]
     );
 
-    // Fetch the created hotel
-    const [hotels] = await pool.query("SELECT * FROM hotels WHERE id = ?", [
-      result.insertId,
-    ]);
-
     res.status(201).json({
       success: true,
       data: {
-        ...hotels[0],
+        ...result.rows[0],
         amenities: amenities || [],
       },
     });
@@ -292,19 +280,19 @@ const updateHotel = async (req, res) => {
       req.body;
 
     // Check if hotel exists and user is owner
-    const [hotelCheck] = await pool.query(
-      "SELECT user_id FROM hotels WHERE id = ?",
+    const hotelCheck = await pool.query(
+      "SELECT user_id FROM hotels WHERE id = $1",
       [id]
     );
 
-    if (hotelCheck.length === 0) {
+    if (hotelCheck.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Hotel not found",
       });
     }
 
-    if (hotelCheck[0].user_id !== req.user.id) {
+    if (hotelCheck.rows[0].user_id !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You can only edit your own hotels",
@@ -314,33 +302,34 @@ const updateHotel = async (req, res) => {
     // Build update query dynamically
     const updates = [];
     const values = [];
+    let paramIndex = 1;
 
     if (name !== undefined) {
-      updates.push("name = ?");
+      updates.push(`name = $${paramIndex++}`);
       values.push(name.trim());
     }
     if (city !== undefined) {
-      updates.push("city = ?");
+      updates.push(`city = $${paramIndex++}`);
       values.push(city.trim());
     }
     if (stars !== undefined) {
-      updates.push("stars = ?");
+      updates.push(`stars = $${paramIndex++}`);
       values.push(parseInt(stars));
     }
     if (price_per_night !== undefined) {
-      updates.push("price_per_night = ?");
+      updates.push(`price_per_night = $${paramIndex++}`);
       values.push(parseFloat(price_per_night));
     }
     if (amenities !== undefined) {
-      updates.push("amenities = ?");
+      updates.push(`amenities = $${paramIndex++}`);
       values.push(JSON.stringify(amenities));
     }
     if (status !== undefined) {
-      updates.push("status = ?");
+      updates.push(`status = $${paramIndex++}`);
       values.push(status);
     }
     if (image_url !== undefined) {
-      updates.push("image_url = ?");
+      updates.push(`image_url = $${paramIndex++}`);
       values.push(image_url);
     }
 
@@ -352,23 +341,17 @@ const updateHotel = async (req, res) => {
     }
 
     values.push(id);
-    const query = `UPDATE hotels SET ${updates.join(", ")} WHERE id = ?`;
+    const query = `UPDATE hotels SET ${updates.join(
+      ", "
+    )} WHERE id = $${paramIndex} RETURNING *`;
 
-    await pool.query(query, values);
-
-    // Fetch updated hotel
-    const [hotels] = await pool.query("SELECT * FROM hotels WHERE id = ?", [
-      id,
-    ]);
+    const result = await pool.query(query, values);
 
     res.json({
       success: true,
       data: {
-        ...hotels[0],
-        amenities:
-          typeof hotels[0].amenities === "string"
-            ? JSON.parse(hotels[0].amenities)
-            : hotels[0].amenities,
+        ...result.rows[0],
+        amenities: result.rows[0].amenities || [],
       },
     });
   } catch (error) {
@@ -386,26 +369,26 @@ const deleteHotel = async (req, res) => {
     const { id } = req.params;
 
     // Check if hotel exists and user is owner
-    const [hotelCheck] = await pool.query(
-      "SELECT user_id FROM hotels WHERE id = ?",
+    const hotelCheck = await pool.query(
+      "SELECT user_id FROM hotels WHERE id = $1",
       [id]
     );
 
-    if (hotelCheck.length === 0) {
+    if (hotelCheck.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Hotel not found",
       });
     }
 
-    if (hotelCheck[0].user_id !== req.user.id) {
+    if (hotelCheck.rows[0].user_id !== req.user.id) {
       return res.status(403).json({
         success: false,
         message: "You can only delete your own hotels",
       });
     }
 
-    await pool.query("DELETE FROM hotels WHERE id = ?", [id]);
+    await pool.query("DELETE FROM hotels WHERE id = $1", [id]);
 
     res.json({
       success: true,

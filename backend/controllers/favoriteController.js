@@ -7,11 +7,10 @@ const addFavorite = async (req, res) => {
     const userId = req.user.id;
 
     // Check if hotel exists
-    const [hotelCheck] = await pool.query(
-      "SELECT id FROM hotels WHERE id = ?",
-      [hotelId]
-    );
-    if (hotelCheck.length === 0) {
+    const hotelCheck = await pool.query("SELECT id FROM hotels WHERE id = $1", [
+      hotelId,
+    ]);
+    if (hotelCheck.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Hotel not found",
@@ -19,12 +18,12 @@ const addFavorite = async (req, res) => {
     }
 
     // Check if already favorited
-    const [existingFav] = await pool.query(
-      "SELECT id FROM favorites WHERE user_id = ? AND hotel_id = ?",
+    const existingFav = await pool.query(
+      "SELECT id FROM favorites WHERE user_id = $1 AND hotel_id = $2",
       [userId, hotelId]
     );
 
-    if (existingFav.length > 0) {
+    if (existingFav.rows.length > 0) {
       return res.status(400).json({
         success: false,
         message: "Hotel is already in your favorites",
@@ -33,7 +32,7 @@ const addFavorite = async (req, res) => {
 
     // Add to favorites
     await pool.query(
-      "INSERT INTO favorites (user_id, hotel_id) VALUES (?, ?)",
+      "INSERT INTO favorites (user_id, hotel_id) VALUES ($1, $2)",
       [userId, hotelId]
     );
 
@@ -56,12 +55,12 @@ const removeFavorite = async (req, res) => {
     const { hotelId } = req.params;
     const userId = req.user.id;
 
-    const [result] = await pool.query(
-      "DELETE FROM favorites WHERE user_id = ? AND hotel_id = ?",
+    const result = await pool.query(
+      "DELETE FROM favorites WHERE user_id = $1 AND hotel_id = $2",
       [userId, hotelId]
     );
 
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({
         success: false,
         message: "Hotel was not in your favorites",
@@ -86,23 +85,20 @@ const getMyFavorites = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const [favorites] = await pool.query(
+    const favorites = await pool.query(
       `SELECT h.*, u.username as owner_name, true as is_favorite
              FROM favorites f
              JOIN hotels h ON f.hotel_id = h.id
              LEFT JOIN users u ON h.user_id = u.id
-             WHERE f.user_id = ?
+             WHERE f.user_id = $1
              ORDER BY f.created_at DESC`,
       [userId]
     );
 
-    // Parse amenities JSON
-    const processedFavorites = favorites.map((h) => ({
+    // Parse amenities JSON (PostgreSQL JSONB is already parsed)
+    const processedFavorites = favorites.rows.map((h) => ({
       ...h,
-      amenities:
-        typeof h.amenities === "string"
-          ? JSON.parse(h.amenities)
-          : h.amenities || [],
+      amenities: h.amenities || [],
     }));
 
     res.json({
