@@ -36,12 +36,12 @@ const register = async (req, res) => {
     }
 
     // Check if user already exists
-    const [existingUsers] = await pool.query(
-      "SELECT id FROM users WHERE email = ? OR username = ?",
+    const existingUsers = await pool.query(
+      "SELECT id FROM users WHERE email = $1 OR username = $2",
       [email, username]
     );
 
-    if (existingUsers.length > 0) {
+    if (existingUsers.rows.length > 0) {
       return res.status(400).json({
         success: false,
         message: "User with this email or username already exists",
@@ -53,13 +53,13 @@ const register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Create user
-    const [result] = await pool.query(
-      "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+    const result = await pool.query(
+      "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id",
       [username, email, passwordHash]
     );
 
     const user = {
-      id: result.insertId,
+      id: result.rows[0].id,
       username,
       email,
     };
@@ -99,19 +99,19 @@ const login = async (req, res) => {
     }
 
     // Find user
-    const [users] = await pool.query(
-      "SELECT id, username, email, password_hash FROM users WHERE email = ?",
+    const users = await pool.query(
+      "SELECT id, username, email, password_hash FROM users WHERE email = $1",
       [email]
     );
 
-    if (users.length === 0) {
+    if (users.rows.length === 0) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
       });
     }
 
-    const user = users[0];
+    const user = users.rows[0];
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password_hash);
@@ -150,12 +150,12 @@ const login = async (req, res) => {
 // Get current user
 const getMe = async (req, res) => {
   try {
-    const [users] = await pool.query(
-      "SELECT id, username, email, created_at FROM users WHERE id = ?",
+    const users = await pool.query(
+      "SELECT id, username, email, created_at FROM users WHERE id = $1",
       [req.user.id]
     );
 
-    if (users.length === 0) {
+    if (users.rows.length === 0) {
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -164,7 +164,7 @@ const getMe = async (req, res) => {
 
     res.json({
       success: true,
-      user: users[0],
+      user: users.rows[0],
     });
   } catch (error) {
     console.error("GetMe error:", error);

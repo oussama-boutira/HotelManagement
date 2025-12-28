@@ -1,13 +1,9 @@
--- Hotel Management System Database Schema for MySQL
--- Run this in your MySQL database
-
--- Create database (if needed)
--- CREATE DATABASE IF NOT EXISTS hotel_management;
--- USE hotel_management;
+-- Hotel Management System Database Schema for PostgreSQL (Supabase)
+-- Run this in your Supabase SQL editor
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -16,34 +12,46 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Hotels table
 CREATE TABLE IF NOT EXISTS hotels (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     city VARCHAR(100) NOT NULL,
-    stars INT CHECK (stars >= 1 AND stars <= 5),
+    stars INTEGER CHECK (stars >= 1 AND stars <= 5),
     price_per_night DECIMAL(10,2) NOT NULL,
-    amenities JSON DEFAULT NULL,
-    status VARCHAR(20) DEFAULT 'available',
+    amenities JSONB DEFAULT '[]'::jsonb,
+    status VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'full')),
     image_url TEXT,
-    user_id INT,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    CHECK (status IN ('available', 'full'))
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Favorites table
 CREATE TABLE IF NOT EXISTS favorites (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    hotel_id INT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    hotel_id INTEGER NOT NULL REFERENCES hotels(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_favorite (user_id, hotel_id)
+    UNIQUE (user_id, hotel_id)
 );
 
 -- Create indexes for better performance
-CREATE INDEX idx_hotels_city ON hotels(city);
-CREATE INDEX idx_hotels_status ON hotels(status);
-CREATE INDEX idx_hotels_user_id ON hotels(user_id);
-CREATE INDEX idx_favorites_user_id ON favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_hotels_city ON hotels(city);
+CREATE INDEX IF NOT EXISTS idx_hotels_status ON hotels(status);
+CREATE INDEX IF NOT EXISTS idx_hotels_user_id ON hotels(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id);
+
+-- Function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Trigger for hotels updated_at
+DROP TRIGGER IF EXISTS update_hotels_updated_at ON hotels;
+CREATE TRIGGER update_hotels_updated_at
+    BEFORE UPDATE ON hotels
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
