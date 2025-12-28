@@ -72,7 +72,6 @@ const updateAuthUI = () => {
   const user = getUser();
   const loggedIn = isLoggedIn();
 
-  console.log("Auth state:", { loggedIn, user }); // Debug log
 
   // Update user menu elements - use classList for better Tailwind compatibility
   document.querySelectorAll(".auth-logged-in").forEach((el) => {

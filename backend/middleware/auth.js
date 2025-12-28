@@ -5,11 +5,6 @@ const authMiddleware = (req, res, next) => {
     // Get token from header
     const authHeader = req.headers.authorization;
 
-    console.log(
-      "Auth header received:",
-      authHeader ? "Bearer ***" + authHeader.slice(-20) : "none"
-    );
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
@@ -19,12 +14,8 @@ const authMiddleware = (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
-    console.log("Token length:", token.length);
-
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Token decoded successfully:", decoded);
     req.user = decoded;
     next();
   } catch (error) {

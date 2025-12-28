@@ -410,6 +410,49 @@
       </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal-backdrop">
+      <div
+        class="relative w-full max-w-[400px] bg-white dark:bg-background-dark rounded-2xl shadow-2xl transform transition-all flex flex-col overflow-hidden ring-1 ring-black/5 mx-4"
+      >
+        <!-- Modal Header -->
+        <div class="px-6 pt-6 pb-4 flex flex-col items-center text-center">
+          <div class="bg-red-100 dark:bg-red-900/30 p-3 rounded-full mb-4">
+            <span class="material-symbols-outlined text-red-500 text-[32px]"
+              >warning</span
+            >
+          </div>
+          <h2
+            class="text-text-main dark:text-white text-xl font-bold leading-tight tracking-tight mb-2"
+          >
+            Delete Property
+          </h2>
+          <p class="text-text-secondary dark:text-gray-400 text-sm">
+            Are you sure you want to delete this hotel? This action cannot be
+            undone.
+          </p>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="px-6 pb-6 flex gap-3">
+          <button
+            onclick="closeDeleteConfirmModal()"
+            class="flex-1 h-12 rounded-xl border border-border-light dark:border-[#2a453c] bg-white dark:bg-[#152a24] text-text-main dark:text-white font-semibold hover:bg-gray-50 dark:hover:bg-[#1e3a32] transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirmDeleteBtn"
+            onclick="confirmDeleteHotel()"
+            class="flex-1 h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-all flex items-center justify-center gap-2"
+          >
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
@@ -557,22 +600,48 @@
           .join("");
       }
 
-      // Override delete to refresh list
-      const originalDeleteHotel = window.deleteHotel;
-      window.deleteHotel = async (hotelId) => {
-        if (!confirm("Are you sure you want to delete this hotel?")) return;
+      // Delete confirmation modal
+      let pendingDeleteHotelId = null;
 
-        const result = await api.deleteHotel(hotelId);
+      function openDeleteConfirmModal(hotelId) {
+        pendingDeleteHotelId = hotelId;
+        document.getElementById("deleteConfirmModal").classList.add("show");
+      }
+
+      function closeDeleteConfirmModal() {
+        document.getElementById("deleteConfirmModal").classList.remove("show");
+        pendingDeleteHotelId = null;
+      }
+
+      async function confirmDeleteHotel() {
+        if (!pendingDeleteHotelId) return;
+
+        const btn = document.getElementById("confirmDeleteBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spinner"></div>';
+
+        const result = await api.deleteHotel(pendingDeleteHotelId);
+
+        btn.disabled = false;
+        btn.innerHTML =
+          '<span class="material-symbols-outlined text-[18px]">delete</span>Delete';
 
         if (result.ok) {
           showToast("Hotel deleted successfully", "success");
-          myHotels = myHotels.filter((h) => h.id !== hotelId);
+          myHotels = myHotels.filter((h) => h.id !== pendingDeleteHotelId);
           updateTabCounts();
           renderProperties();
+          closeDeleteConfirmModal();
         } else {
           showToast(result.data.message || "Failed to delete hotel", "error");
         }
-      };
+      }
+
+      // Listen for delete requests and show custom confirmation modal
+      document.addEventListener("hotelDeleteRequest", (e) => {
+        e.preventDefault();
+        openDeleteConfirmModal(e.detail.hotelId);
+      });
     </script>
   </body>
 </html>

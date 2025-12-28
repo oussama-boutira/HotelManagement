@@ -225,10 +225,24 @@ const editHotel = (hotelId) => {
   window.location.href = `/add-hotel.html?id=${hotelId}`;
 };
 
-// Delete hotel
-const deleteHotel = async (hotelId) => {
-  if (!confirm("Are you sure you want to delete this hotel?")) return;
+// Delete hotel - dispatches event for custom confirmation handling
+const deleteHotel = (hotelId) => {
+  // Dispatch custom event for pages that want to show a custom confirmation modal
+  const event = new CustomEvent("hotelDeleteRequest", {
+    detail: { hotelId },
+    cancelable: true,
+  });
 
+  const handled = !document.dispatchEvent(event);
+
+  // If not handled by a custom handler, use default behavior
+  if (!handled && !event.defaultPrevented) {
+    performDeleteHotel(hotelId);
+  }
+};
+
+// Actually perform the delete operation
+const performDeleteHotel = async (hotelId) => {
   const result = await api.deleteHotel(hotelId);
 
   if (result.ok) {
@@ -328,6 +342,7 @@ window.toggleFavorite = toggleFavorite;
 window.viewHotel = viewHotel;
 window.editHotel = editHotel;
 window.deleteHotel = deleteHotel;
+window.performDeleteHotel = performDeleteHotel;
 window.showToast = showToast;
 window.createPagination = createPagination;
 window.DEFAULT_HOTEL_IMAGE = DEFAULT_HOTEL_IMAGE;
