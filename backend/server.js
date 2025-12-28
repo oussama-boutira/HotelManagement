@@ -51,10 +51,7 @@ app.use((err, req, res, next) => {
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(
-    `📁 Serving frontend from: ${path.join(__dirname, "../frontend")}`
-  );
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 
 module.exports = app;
