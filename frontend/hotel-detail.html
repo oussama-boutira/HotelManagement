@@ -309,6 +309,10 @@
 
       // Initialize
       document.addEventListener("DOMContentLoaded", async () => {
+        // Fetch user data from API if logged in
+        if (isLoggedIn()) {
+          await verifyUser();
+        }
         updateAuthUI();
 
         if (!hotelId) {
