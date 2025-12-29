@@ -505,6 +505,8 @@
         // Require auth
         if (!requireAuth()) return;
 
+        // Fetch user data from API first
+        await verifyUser();
         updateAuthUI();
 
         // Check if editing

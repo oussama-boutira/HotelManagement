@@ -59,7 +59,7 @@
   <body class="bg-white text-[#222222] antialiased">
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
       <!-- Navbar -->
-     
+
       <header
         class="sticky top-0 z-50 w-full bg-white dark:bg-background-dark border-b border-border-light dark:border-gray-800"
       >
@@ -374,6 +374,8 @@
       document.addEventListener("DOMContentLoaded", async () => {
         if (!requireAuth()) return;
 
+        // Fetch user data from API first
+        await verifyUser();
         updateAuthUI();
         await loadFavorites();
       });
