@@ -175,4 +175,125 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe };
+// Google OAuth authentication
+const googleAuth = async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        success: false,
+        message: "Google credential is required",
+      });
+    }
+
+    // Verify the Google ID token
+    const response = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`
+    );
+
+    if (!response.ok) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Google credential",
+      });
+    }
+
+    const googleUser = await response.json();
+
+    // Validate the token is for our app
+    if (googleUser.aud !== process.env.GOOGLE_CLIENT_ID) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token audience",
+      });
+    }
+
+    const { sub: googleId, email, name } = googleUser;
+
+    // Check if user exists by google_id
+    let users = await pool.query(
+      "SELECT id, username, email FROM users WHERE google_id = $1",
+      [googleId]
+    );
+
+    let user;
+
+    if (users.rows.length > 0) {
+      // User exists with this Google ID
+      user = users.rows[0];
+    } else {
+      // Check if user exists with this email
+      users = await pool.query(
+        "SELECT id, username, email, google_id FROM users WHERE email = $1",
+        [email]
+      );
+
+      if (users.rows.length > 0) {
+        // User exists with this email, link Google account
+        const existingUser = users.rows[0];
+
+        if (!existingUser.google_id) {
+          // Update user to add google_id
+          await pool.query("UPDATE users SET google_id = $1 WHERE id = $2", [
+            googleId,
+            existingUser.id,
+          ]);
+        }
+
+        user = existingUser;
+      } else {
+        // Create new user
+        // Generate a unique username from Google name or email
+        let username = name
+          ? name.replace(/[^a-zA-Z0-9_]/g, "_").substring(0, 40)
+          : email
+              .split("@")[0]
+              .replace(/[^a-zA-Z0-9_]/g, "_")
+              .substring(0, 40);
+
+        // Check if username exists and make it unique
+        const usernameCheck = await pool.query(
+          "SELECT id FROM users WHERE username = $1",
+          [username]
+        );
+
+        if (usernameCheck.rows.length > 0) {
+          username = `${username}_${Date.now().toString().slice(-6)}`;
+        }
+
+        const result = await pool.query(
+          "INSERT INTO users (username, email, google_id, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, username, email",
+          [username, email, googleId, null]
+        );
+
+        user = result.rows[0];
+      }
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, username: user.username, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during Google authentication",
+    });
+  }
+};
+
+module.exports = { register, login, getMe, googleAuth };

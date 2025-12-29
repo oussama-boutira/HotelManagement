@@ -106,6 +106,12 @@ const api = {
       body: JSON.stringify(credentials),
     }),
 
+  googleAuth: (credential) =>
+    apiRequest("/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential }),
+    }),
+
   getMe: () => apiRequest("/auth/me"),
 
   // Hotels
