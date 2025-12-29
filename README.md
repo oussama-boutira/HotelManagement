@@ -491,8 +491,6 @@ Full Stack Development Project - 2025
 
 <div align="center">
 
-**Made with ❤️ using Node.js, PostgreSQL, and Vercel**
-
 [⬆ Back to Top](#-p2p-hotels---full-stack-hotel-management-platform)
 
 </div>

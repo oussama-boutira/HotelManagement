@@ -2,40 +2,57 @@
 
 const API_BASE_URL = "/api";
 
-// Get token from localStorage (check both standalone token and user.token)
-const getToken = () => {
-  // First check standalone token
-  const token = localStorage.getItem("token");
-  if (token) return token;
+// Cookie helper functions
+const setCookie = (name, value, days = 7) => {
+  const expires = new Date(
+    Date.now() + days * 24 * 60 * 60 * 1000
+  ).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(
+    value
+  )}; expires=${expires}; path=/; SameSite=Strict; Secure`;
+};
 
-  // Also check if token is stored inside user object
-  const user = localStorage.getItem("user");
-  if (user) {
-    try {
-      const parsedUser = JSON.parse(user);
-      if (parsedUser?.token) return parsedUser.token;
-    } catch (e) {}
+const getCookie = (name) => {
+  const cookies = document.cookie.split("; ");
+  for (const cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.split("=");
+    if (cookieName === name) {
+      return decodeURIComponent(cookieValue);
+    }
   }
   return null;
 };
 
-// Set token in localStorage
-const setToken = (token) => localStorage.setItem("token", token);
-
-// Remove token from localStorage
-const removeToken = () => localStorage.removeItem("token");
-
-// Get user from localStorage
-const getUser = () => {
-  const user = localStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
+const deleteCookie = (name) => {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Strict; Secure`;
 };
 
-// Set user in localStorage
-const setUser = (user) => localStorage.setItem("user", JSON.stringify(user));
+// Get token from cookie
+const getToken = () => {
+  return getCookie("token");
+};
 
-// Remove user from localStorage
-const removeUser = () => localStorage.removeItem("user");
+// Set token in cookie
+const setToken = (token) => setCookie("token", token, 7);
+
+// Remove token from cookie
+const removeToken = () => deleteCookie("token");
+
+// User data is fetched from API, not stored locally
+let cachedUser = null;
+
+// Get user (returns cached user or null)
+const getUser = () => cachedUser;
+
+// Set user (only in memory, not persisted)
+const setUser = (user) => {
+  cachedUser = user;
+};
+
+// Remove user from memory
+const removeUser = () => {
+  cachedUser = null;
+};
 
 // Make API request with optional auth
 const apiRequest = async (endpoint, options = {}) => {
