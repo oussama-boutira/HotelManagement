@@ -114,6 +114,8 @@ const api = {
 
   getMe: () => apiRequest("/auth/me"),
 
+  getGoogleClientId: () => apiRequest("/auth/google-client-id"),
+
   // Hotels
   getCategories: () => apiRequest("/hotels/categories"),
 
