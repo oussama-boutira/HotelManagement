@@ -90,16 +90,9 @@
             <input
               type="text"
               id="searchInput"
-              class="text-sm font-semibold px-2 border-none bg-transparent focus:ring-0 text-text-main dark:text-white placeholder:text-text-secondary w-32"
+              class="text-sm font-semibold px-2 border-none bg-transparent focus:ring-0 text-text-main dark:text-white placeholder:text-text-secondary w-48"
               placeholder="Search hotels..."
             />
-            <select
-              id="cityFilter"
-              class="text-sm font-semibold px-6 border-l border-gray-300 dark:border-gray-600 bg-transparent focus:ring-0 text-text-main dark:text-white"
-            >
-              <option value="">All cities</option>
-              <!-- Cities will be loaded dynamically from database -->
-            </select>
             <button
               onclick="applyFilters()"
               class="bg-primary p-2 rounded-full text-white flex items-center justify-center ml-2"
@@ -227,12 +220,6 @@
               class="flex-grow text-sm px-4 py-3 border border-border-light dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white placeholder:text-text-secondary"
               placeholder="Search hotels..."
             />
-            <select
-              id="mobileCityFilter"
-              class="text-sm px-3 py-3 border border-border-light dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
-            >
-              <option value="">All cities</option>
-            </select>
             <button
               onclick="applyMobileFilters()"
               class="bg-primary p-3 rounded-xl text-white flex items-center justify-center"
@@ -250,21 +237,30 @@
     >
       <div class="px-4 sm:px-6 md:px-12 lg:px-20 mx-auto max-w-[1920px]">
         <!-- Mobile Filters Row -->
-        <div class="flex md:hidden items-center gap-2 pb-3">
+        <div class="flex md:hidden items-center gap-2 pb-3 flex-wrap">
           <!-- Mobile Category Dropdown -->
           <select
             id="mobileCategoryFilter"
             onchange="filterByCategory(this.value)"
-            class="flex-1 text-sm font-semibold border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
+            class="flex-1 min-w-[45%] text-sm font-semibold border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="all">All Categories</option>
             <!-- Categories will be loaded dynamically -->
+          </select>
+          <!-- Mobile City Filter -->
+          <select
+            id="mobileCityFilter"
+            onchange="applyMobileFilters()"
+            class="flex-1 min-w-[45%] text-sm border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
+          >
+            <option value="">All Cities</option>
+            <!-- Cities will be loaded dynamically -->
           </select>
           <!-- Mobile Status Filter -->
           <select
             id="mobileStatusFilter"
             onchange="applyMobileFilters()"
-            class="flex-1 text-sm border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
+            class="flex-1 min-w-[45%] text-sm border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="">Status</option>
             <option value="available">Available</option>
@@ -274,7 +270,7 @@
           <select
             id="mobileStarsFilter"
             onchange="applyMobileFilters()"
-            class="flex-1 text-sm border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
+            class="flex-1 min-w-[45%] text-sm border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="">Stars</option>
             <option value="5">5★</option>
@@ -289,7 +285,7 @@
         <div class="hidden md:flex items-center gap-4">
           <!-- Categories Scroll Container -->
           <div
-            class="flex-grow flex items-center gap-8 overflow-x-auto hide-scrollbar pb-4"
+            class="flex-grow flex items-center gap-4 overflow-x-auto hide-scrollbar pb-4"
             id="categoriesContainer"
           >
             <!-- "All" button - always present -->
@@ -311,11 +307,19 @@
             <!-- Dynamic categories will be loaded here -->
           </div>
 
-          <!-- Desktop Status Filter -->
+          <!-- Desktop Filters -->
           <div
             class="flex items-center gap-2 pb-4 flex-shrink-0"
             id="filterControls"
           >
+            <select
+              id="cityFilter"
+              onchange="applyFilters()"
+              class="text-sm border border-border-light dark:border-gray-700 rounded-lg px-4 lg:px-6 py-2 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary"
+            >
+              <option value="">All Cities</option>
+              <!-- Cities will be loaded dynamically from database -->
+            </select>
             <select
               id="statusFilter"
               onchange="applyFilters()"
@@ -629,10 +633,13 @@
 
           // Add city options to both desktop and mobile
           result.data.data.forEach((city) => {
-            const option = document.createElement("option");
-            option.value = city;
-            option.textContent = city;
-            cityFilter.appendChild(option);
+            // Add to desktop filter
+            if (cityFilter) {
+              const option = document.createElement("option");
+              option.value = city;
+              option.textContent = city;
+              cityFilter.appendChild(option);
+            }
 
             // Also add to mobile filter
             if (mobileCityFilter) {
@@ -769,9 +776,11 @@
         const mobileCategoryFilter = document.getElementById(
           "mobileCategoryFilter"
         );
+        const mobileCityFilter = document.getElementById("mobileCityFilter");
         if (mobileStatusFilter) mobileStatusFilter.value = "";
         if (mobileStarsFilter) mobileStarsFilter.value = "";
         if (mobileCategoryFilter) mobileCategoryFilter.value = "all";
+        if (mobileCityFilter) mobileCityFilter.value = "";
 
         currentFilters = {};
         currentCategory = "all";
@@ -784,6 +793,23 @@
           btn.classList.toggle("dark:border-white", isAll);
           btn.classList.toggle("border-transparent", !isAll);
           btn.classList.toggle("opacity-70", !isAll);
+        });
+
+        loadHotels();
+      }
+
+      // Apply mobile filters
+      function applyMobileFilters() {
+        currentPage = 1;
+        currentFilters = {
+          city: document.getElementById("mobileCityFilter")?.value || "",
+          status: document.getElementById("mobileStatusFilter")?.value || "",
+          stars: document.getElementById("mobileStarsFilter")?.value || "",
+        };
+
+        // Remove empty values
+        Object.keys(currentFilters).forEach((key) => {
+          if (!currentFilters[key]) delete currentFilters[key];
         });
 
         loadHotels();
