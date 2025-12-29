@@ -15,6 +15,9 @@
       rel="stylesheet"
     />
 
+    <!-- Google Sign-In SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
@@ -301,9 +304,14 @@
 
           <!-- Social Login Buttons -->
           <div class="flex flex-col gap-3">
+            <!-- Google Sign-In Button Container -->
+            <div id="googleButtonContainer" class="flex justify-center"></div>
+
+            <!-- Fallback button if Google SDK fails -->
             <button
-              class="relative flex items-center justify-center w-full border border-gray-800 dark:border-gray-400 hover:bg-gray-50 dark:hover:bg-[#332522] rounded-lg py-3 transition-colors group opacity-50 cursor-not-allowed"
-              disabled
+              id="googleSignInFallback"
+              onclick="handleGoogleSignIn()"
+              class="hidden relative flex items-center justify-center w-full border border-gray-800 dark:border-gray-400 hover:bg-gray-50 dark:hover:bg-[#332522] rounded-lg py-3 transition-colors group"
             >
               <svg
                 class="absolute left-5 w-5 h-5"
@@ -328,7 +336,7 @@
                 ></path>
               </svg>
               <span class="text-sm font-semibold text-text-main dark:text-white"
-                >Continue with Google (Coming Soon)</span
+                >Continue with Google</span
               >
             </button>
           </div>
@@ -377,6 +385,10 @@
     <script src="/js/auth.js"></script>
     <script src="/js/hotels.js"></script>
     <script>
+      // Google Client ID
+      const GOOGLE_CLIENT_ID =
+        "1087464583978-7j3ei54hggvbge14t56e8htnn8g716cl.apps.googleusercontent.com";
+
       let isLoginMode = true;
 
       // Check if already logged in
@@ -386,12 +398,79 @@
           return;
         }
 
+        // Initialize Google Sign-In
+        initGoogleSignIn();
+
         // Check URL params for register mode
         const params = new URLSearchParams(window.location.search);
         if (params.get("register") === "true") {
           toggleForms();
         }
       });
+
+      // Initialize Google Sign-In
+      function initGoogleSignIn() {
+        if (
+          typeof google !== "undefined" &&
+          google.accounts &&
+          google.accounts.id
+        ) {
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredentialResponse,
+          });
+
+          // Render the Google Sign-In button
+          google.accounts.id.renderButton(
+            document.getElementById("googleButtonContainer"),
+            {
+              type: "standard",
+              theme: "outline",
+              size: "large",
+              text: "continue_with",
+              shape: "rectangular",
+              width: "100%",
+            }
+          );
+        } else {
+          // Retry after a short delay if Google SDK not loaded yet
+          setTimeout(initGoogleSignIn, 500);
+          // Show fallback button
+          document
+            .getElementById("googleSignInFallback")
+            .classList.remove("hidden");
+        }
+      }
+
+      // Handle Google Sign-In button click (fallback)
+      function handleGoogleSignIn() {
+        if (
+          typeof google !== "undefined" &&
+          google.accounts &&
+          google.accounts.id
+        ) {
+          google.accounts.id.prompt();
+        } else {
+          showToast("Google Sign-In is loading, please try again", "info");
+        }
+      }
+
+      // Handle Google credential response
+      async function handleGoogleCredentialResponse(response) {
+        // Show loading state
+        showToast("Signing in with Google...", "info");
+
+        const result = await api.googleAuth(response.credential);
+
+        if (result.ok && result.data.success) {
+          setToken(result.data.token);
+          setUser(result.data.user);
+          showToast("Welcome!", "success");
+          window.location.href = "/";
+        } else {
+          showToast(result.data.message || "Google sign-in failed", "error");
+        }
+      }
 
       // Toggle password visibility
       function togglePasswordVisibility(inputId) {
