@@ -563,6 +563,70 @@
       </div>
     </footer>
 
+    <!-- Chatbot Widget -->
+    <div id="chatbotWidget" class="chatbot-widget">
+      <!-- Chat Toggle Button -->
+      <button
+        id="chatbotToggle"
+        onclick="toggleChatbot()"
+        class="chatbot-toggle"
+      >
+        <span class="material-symbols-outlined chat-icon">chat</span>
+        <span class="material-symbols-outlined close-icon hidden">close</span>
+      </button>
+
+      <!-- Chat Window -->
+      <div id="chatWindow" class="chat-window hidden">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="chat-avatar">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <div>
+              <h4>P2P Hotels Assistant</h4>
+              <span class="chat-status">Online</span>
+            </div>
+          </div>
+          <button onclick="toggleChatbot()" class="chat-close-btn">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="chatMessages" class="chat-messages">
+          <div class="chat-message bot-message">
+            <div class="message-avatar">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <div class="message-content">
+              <p>
+                Hello! 👋 I'm your P2P Hotels assistant. How can I help you
+                today?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Type your message..."
+            onkeypress="handleChatKeypress(event)"
+          />
+          <button
+            onclick="sendChatMessage()"
+            id="sendChatBtn"
+            class="chat-send-btn"
+          >
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
@@ -899,6 +963,194 @@
         .addEventListener("keypress", (e) => {
           if (e.key === "Enter") applyFilters();
         });
+
+      // ===================================
+      // Chatbot Functions
+      // ===================================
+
+      // Store conversation history for context
+      let chatHistory = [];
+
+      // Toggle chatbot window
+      function toggleChatbot() {
+        const chatWindow = document.getElementById("chatWindow");
+        const toggleBtn = document.getElementById("chatbotToggle");
+
+        chatWindow.classList.toggle("show");
+        toggleBtn.classList.toggle("active");
+
+        // Focus input when opening
+        if (chatWindow.classList.contains("show")) {
+          document.getElementById("chatInput").focus();
+        }
+      }
+
+      // Handle Enter key in chat input
+      function handleChatKeypress(event) {
+        if (event.key === "Enter") {
+          sendChatMessage();
+        }
+      }
+
+      // Send chat message
+      async function sendChatMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Clear input
+        input.value = "";
+
+        // Add user message to chat
+        addMessageToChat(message, "user");
+
+        // Add to history
+        chatHistory.push({
+          role: "user",
+          content: message,
+        });
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        try {
+          // Call AI API
+          const response = await callChatbotAPI(message);
+
+          // Remove typing indicator
+          hideTypingIndicator();
+
+          // Add bot response to chat
+          addMessageToChat(response, "bot");
+
+          // Add to history
+          chatHistory.push({
+            role: "assistant",
+            content: response,
+          });
+        } catch (error) {
+          hideTypingIndicator();
+          addMessageToChat(
+            "I'm sorry, I encountered an error. Please try again later.",
+            "bot"
+          );
+          console.error("Chatbot error:", error);
+        }
+      }
+
+      // Add message to chat display
+      function addMessageToChat(message, type) {
+        const messagesContainer = document.getElementById("chatMessages");
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `chat-message ${type}-message`;
+
+        const avatarIcon = type === "bot" ? "smart_toy" : "person";
+
+        messageDiv.innerHTML = `
+          <div class="message-avatar">
+            <span class="material-symbols-outlined">${avatarIcon}</span>
+          </div>
+          <div class="message-content">
+            <p>${escapeHtml(message)}</p>
+          </div>
+        `;
+
+        messagesContainer.appendChild(messageDiv);
+
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      // Escape HTML to prevent XSS
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Show typing indicator
+      function showTypingIndicator() {
+        const messagesContainer = document.getElementById("chatMessages");
+
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "chat-message bot-message";
+        typingDiv.id = "typingIndicator";
+
+        typingDiv.innerHTML = `
+          <div class="message-avatar">
+            <span class="material-symbols-outlined">smart_toy</span>
+          </div>
+          <div class="message-content">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        `;
+
+        messagesContainer.appendChild(typingDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      // Hide typing indicator
+      function hideTypingIndicator() {
+        const typingIndicator = document.getElementById("typingIndicator");
+        if (typingIndicator) {
+          typingIndicator.remove();
+        }
+      }
+
+      // Call OpenRouter API
+      async function callChatbotAPI(userMessage) {
+        const OPENROUTER_API_KEY =
+          "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";
+
+        // Build messages array with system prompt and history
+        const messages = [
+          {
+            role: "system",
+            content:
+              "You are a helpful assistant for P2P Hotels, a peer-to-peer hotel booking platform. You help users find hotels, answer questions about booking, provide travel tips, and assist with any hotel-related inquiries. Be friendly, concise, and helpful. If users ask about specific hotels, guide them to use the search functionality on the website.",
+          },
+          ...chatHistory.slice(-10), // Keep last 10 messages for context
+          {
+            role: "user",
+            content: userMessage,
+          },
+        ];
+
+        const response = await fetch(
+          "https://openrouter.ai/api/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+              "HTTP-Referer": window.location.origin,
+              "X-Title": "P2P Hotels",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "google/gemma-3-27b-it:free",
+              messages: messages,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+          return data.choices[0].message.content;
+        }
+
+        throw new Error("Invalid response format");
+      }
     </script>
   </body>
 </html>
