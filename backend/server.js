@@ -8,6 +8,7 @@ const authRoutes = require("./routes/auth");
 const hotelRoutes = require("./routes/hotels");
 const favoriteRoutes = require("./routes/favorites");
 const scrapingRoutes = require("./routes/scraping");
+const chatbotRoutes = require("./routes/chatbot");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/hotels", hotelRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/scraping", scrapingRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
