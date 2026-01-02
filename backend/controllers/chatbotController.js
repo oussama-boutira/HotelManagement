@@ -129,6 +129,67 @@ const sendMessage = async (req, res) => {
   }
 };
 
+// Proxy to n8n Chatbot Webhook (avoids CORS issues)
+const sendMessageN8n = async (req, res) => {
+  try {
+    const { message, sessionId } = req.body;
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        message: "Message is required",
+      });
+    }
+
+    const N8N_WEBHOOK_URL =process.env.N8N_CHATBOT_URL;
+
+    console.log("Forwarding to n8n:", { message, sessionId });
+
+    const response = await fetch(N8N_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message,
+        sessionId: sessionId || "default",
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("n8n error:", response.status, errorText);
+      return res.status(response.status).json({
+        success: false,
+        message: "Chatbot service error",
+      });
+    }
+
+    const data = await response.json();
+    console.log("n8n response:", data);
+
+    // Handle various n8n response formats
+    let responseText =
+      data.output || data.response || data.text || data.message;
+
+    if (!responseText && typeof data === "object") {
+      responseText = JSON.stringify(data);
+    }
+
+    return res.json({
+      success: true,
+      message: responseText || "No response from chatbot",
+    });
+  } catch (error) {
+    console.error("n8n proxy error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred: " + error.message,
+    });
+  }
+};
+
 module.exports = {
   sendMessage,
+  sendMessageN8n,
 };
