@@ -62,6 +62,28 @@
   <body
     class="bg-background-light dark:bg-background-dark text-text-main dark:text-white antialiased min-h-screen flex flex-col"
   >
+    <!-- Loading Page Overlay -->
+    <div id="loadingPage" class="loading-page">
+      <div class="loading-content">
+        <!-- Animated Logo -->
+        <div class="loading-logo">
+          <span class="material-symbols-outlined loading-icon"
+            >travel_explore</span
+          >
+        </div>
+        <!-- Brand Name -->
+        <h1 class="loading-brand">P2P Hotels</h1>
+        <!-- Loading Spinner -->
+        <div class="loading-spinner-container">
+          <div class="loading-bar">
+            <div class="loading-bar-progress"></div>
+          </div>
+        </div>
+        <!-- Loading Text -->
+        <p class="loading-text">Discovering amazing stays...</p>
+      </div>
+    </div>
+
     <!-- Navbar -->
     <header
       class="sticky top-0 z-50 w-full bg-white dark:bg-background-dark border-b border-border-light dark:border-gray-800"
@@ -639,6 +661,9 @@
 
       // Initialize
       document.addEventListener("DOMContentLoaded", async () => {
+        const loadingPage = document.getElementById("loadingPage");
+        const startTime = Date.now();
+
         // Fetch user data from API if logged in
         if (isLoggedIn()) {
           await verifyUser();
@@ -647,6 +672,15 @@
         await loadCities();
         await loadCategories();
         await loadHotels();
+
+        // Hide loading page with minimum display time for smooth UX
+        const elapsed = Date.now() - startTime;
+        const minDisplayTime = 800; // Minimum 800ms to show loading
+        const remainingTime = Math.max(0, minDisplayTime - elapsed);
+
+        setTimeout(() => {
+          loadingPage.classList.add("hidden");
+        }, remainingTime);
       });
 
       // Toggle mobile search bar
