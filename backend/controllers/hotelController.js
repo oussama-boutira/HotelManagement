@@ -117,20 +117,24 @@ const getAllHotels = async (req, res) => {
       countParams.push(status);
     }
 
-    // Filter by stars
+    // Filter by stars (validate it's a valid number)
     if (stars) {
-      query += ` AND h.stars = $${paramIndex++}`;
-      countQuery += ` AND stars = $${countParamIndex++}`;
-      params.push(parseInt(stars));
-      countParams.push(parseInt(stars));
+      const starsNum = parseInt(stars);
+      if (!isNaN(starsNum) && starsNum >= 1 && starsNum <= 5) {
+        query += ` AND h.stars = $${paramIndex++}`;
+        countQuery += ` AND stars = $${countParamIndex++}`;
+        params.push(starsNum);
+        countParams.push(starsNum);
+      }
     }
 
     // Filter by amenity (search in JSONB array)
-    if (amenity) {
+    if (amenity && typeof amenity === "string" && amenity.trim()) {
+      const cleanAmenity = amenity.trim().toLowerCase();
       query += ` AND h.amenities @> $${paramIndex++}::jsonb`;
       countQuery += ` AND amenities @> $${countParamIndex++}::jsonb`;
-      params.push(JSON.stringify([amenity]));
-      countParams.push(JSON.stringify([amenity]));
+      params.push(JSON.stringify([cleanAmenity]));
+      countParams.push(JSON.stringify([cleanAmenity]));
     }
 
     // Add ordering and pagination
