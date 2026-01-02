@@ -1103,22 +1103,21 @@
         }
       }
 
-      // Call n8n Chatbot Webhook
-      const N8NCHATBOT_URL = "https://n8n.zackdev.io/webhook-test/chatbot";
-
-      // Generate unique session ID for conversation memory
-      let sessionId = localStorage.getItem("chatSessionId");
-      if (!sessionId) {
-        sessionId =
-          "session_" +
-          Date.now() +
-          "_" +
-          Math.random().toString(36).substr(2, 9);
-        localStorage.setItem("chatSessionId", sessionId);
+      // Call n8n Chatbot via Backend Proxy (avoids CORS)
+      // Session ID: Use user ID if logged in, or generate a guest fingerprint
+      function getChatSessionId() {
+        const user = getUser();
+        if (user && user.id) {
+          return `user_${user.id}`;
+        }
+        // For guests, use a fingerprint based on browser info
+        return `guest_${navigator.userAgent.length}_${screen.width}_${screen.height}`;
       }
 
       async function callChatbotAPI(userMessage) {
-        const response = await fetch(N8NCHATBOT_URL, {
+        const sessionId = getChatSessionId();
+
+        const response = await fetch("/api/chatbot/n8n", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1135,23 +1134,11 @@
 
         const data = await response.json();
 
-        // n8n returns the response in different formats depending on your setup
-        if (data.output) {
-          return data.output;
-        }
-        if (data.response) {
-          return data.response;
-        }
-        if (typeof data === "string") {
-          return data;
-        }
-        // If it's an object with text content
-        if (data.text) {
-          return data.text;
+        if (data.success && data.message) {
+          return data.message;
         }
 
-        // Return the whole response if we can't find the message
-        return JSON.stringify(data);
+        throw new Error(data.message || "Invalid response format");
       }
     </script>
   </body>
