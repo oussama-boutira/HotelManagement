@@ -1009,9 +1009,11 @@
       function toggleChatbot() {
         const chatWindow = document.getElementById("chatWindow");
         const toggleBtn = document.getElementById("chatbotToggle");
+        const widget = document.getElementById("chatbotWidget");
 
         chatWindow.classList.toggle("show");
         toggleBtn.classList.toggle("active");
+        widget.classList.toggle("chat-open");
 
         // Focus input when opening
         if (chatWindow.classList.contains("show")) {
