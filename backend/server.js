@@ -17,8 +17,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend folder
-app.use(express.static(path.join(__dirname, "../frontend")));
+// Serve static files from frontend folder with caching
+app.use(
+  express.static(path.join(__dirname, "../frontend"), {
+    maxAge: "1d",
+    setHeaders: (res, filePath) => {
+      // Cache JS and CSS files for 1 week
+      if (filePath.endsWith(".js") || filePath.endsWith(".css")) {
+        res.setHeader("Cache-Control", "public, max-age=604800");
+      }
+      // Cache images for 1 month
+      if (/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=2592000");
+      }
+    },
+  })
+);
 
 // API Routes
 app.use("/api/auth", authRoutes);
