@@ -488,9 +488,10 @@
                     </div>
                     <div 
                         class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" 
-                        style="background-image: url('${
-                          hotel.image_url || DEFAULT_HOTEL_IMAGE
-                        }')"
+                        style="background-image: url('${optimizeImageUrl(
+                          hotel.image_url,
+                          400
+                        )}')"
                         onclick="viewHotel(${hotel.id})"
                     ></div>
                 </div>
