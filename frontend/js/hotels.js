@@ -2,7 +2,21 @@
 
 // Default hotel image
 const DEFAULT_HOTEL_IMAGE =
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
+  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80&fm=webp";
+
+// Optimize image URL for better performance
+const optimizeImageUrl = (url, width = 400) => {
+  if (!url) return DEFAULT_HOTEL_IMAGE;
+
+  // Only optimize Unsplash images
+  if (url.includes("unsplash.com")) {
+    // Remove existing parameters and add optimized ones
+    const baseUrl = url.split("?")[0];
+    return `${baseUrl}?w=${width}&q=80&fm=webp&auto=format&fit=crop`;
+  }
+
+  return url;
+};
 
 // Create hotel card HTML
 const createHotelCard = (hotel) => {
@@ -57,9 +71,10 @@ const createHotelCard = (hotel) => {
                 <!-- Image -->
                 <div 
                     class="w-full h-full bg-center bg-cover bg-no-repeat image-zoom"
-                    style="background-image: url('${
-                      hotel.image_url || DEFAULT_HOTEL_IMAGE
-                    }')"
+                    style="background-image: url('${optimizeImageUrl(
+                      hotel.image_url,
+                      400
+                    )}')"
                     onclick="viewHotel(${hotel.id})"
                 ></div>
             </div>
@@ -108,9 +123,10 @@ const createHotelListCard = (hotel) => {
             <!-- Thumbnail -->
             <div 
                 class="w-full sm:w-48 h-48 sm:h-32 shrink-0 bg-center bg-no-repeat bg-cover rounded-lg relative overflow-hidden cursor-pointer"
-                style="background-image: url('${
-                  hotel.image_url || DEFAULT_HOTEL_IMAGE
-                }')"
+                style="background-image: url('${optimizeImageUrl(
+                  hotel.image_url,
+                  300
+                )}')"
                 onclick="viewHotel(${hotel.id})"
             >
                 <div class="absolute top-2 left-2 sm:hidden">
@@ -346,3 +362,4 @@ window.performDeleteHotel = performDeleteHotel;
 window.showToast = showToast;
 window.createPagination = createPagination;
 window.DEFAULT_HOTEL_IMAGE = DEFAULT_HOTEL_IMAGE;
+window.optimizeImageUrl = optimizeImageUrl;
