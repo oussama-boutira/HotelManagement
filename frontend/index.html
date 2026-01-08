@@ -83,9 +83,127 @@
 
     <!-- PostHog Analytics - Moved to end of body for better performance -->
 
+    <!-- Critical CSS - Inlined for faster first paint -->
     <style>
+      /* Base */
       body {
         font-family: "Plus Jakarta Sans", sans-serif;
+        margin: 0;
+      }
+      /* Loading Page - Critical for first paint */
+      .loading-page {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #10221c 0%,
+          #1a3830 50%,
+          #10221c 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      .loading-page.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .loading-logo {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #2beead 0%, #1ebf9f 100%);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        animation: logoPulse 2s ease-in-out infinite;
+        box-shadow: 0 0 60px rgba(43, 238, 173, 0.4);
+      }
+      .loading-icon {
+        font-size: 48px !important;
+        color: #10221c;
+      }
+      @keyframes logoPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 60px rgba(43, 238, 173, 0.4);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 0 80px rgba(43, 238, 173, 0.6);
+        }
+      }
+      .loading-brand {
+        font-size: 32px;
+        font-weight: 800;
+        color: #2beead;
+        letter-spacing: -1px;
+        margin: 0 0 32px 0;
+      }
+      .loading-spinner-container {
+        width: 200px;
+        margin-bottom: 20px;
+      }
+      .loading-bar {
+        width: 100%;
+        height: 4px;
+        background: rgba(43, 238, 173, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .loading-bar-progress {
+        height: 100%;
+        width: 40%;
+        background: linear-gradient(90deg, #2beead, #1ebf9f);
+        border-radius: 4px;
+        animation: loadingProgress 1.5s ease-in-out infinite;
+      }
+      @keyframes loadingProgress {
+        0% {
+          width: 0%;
+          margin-left: 0%;
+        }
+        50% {
+          width: 60%;
+          margin-left: 20%;
+        }
+        100% {
+          width: 0%;
+          margin-left: 100%;
+        }
+      }
+      .loading-text {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+      }
+      .light .loading-page {
+        background: linear-gradient(
+          135deg,
+          #f8faf9 0%,
+          #e8f5f0 50%,
+          #f8faf9 100%
+        );
+      }
+      .light .loading-brand {
+        color: #10221c;
+      }
+      .light .loading-text {
+        color: rgba(16, 34, 28, 0.6);
       }
     </style>
   </head>
