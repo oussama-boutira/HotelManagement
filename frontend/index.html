@@ -18,6 +18,7 @@
     <!-- DNS Prefetch for external resources -->
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com" />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
 
     <!-- Preconnect to external domains for faster loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -836,7 +837,7 @@
 
         // Hide loading page with minimum display time for smooth UX
         const elapsed = Date.now() - startTime;
-        const minDisplayTime = 800; // Minimum 800ms to show loading
+        const minDisplayTime = 300; // Reduced from 800ms for faster LCP
         const remainingTime = Math.max(0, minDisplayTime - elapsed);
 
         setTimeout(() => {
