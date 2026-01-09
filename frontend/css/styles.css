@@ -898,3 +898,64 @@ textarea:focus {
 .light .loading-bar {
   background: rgba(43, 238, 173, 0.3);
 }
+
+/* ===================================
+   Mobile Performance Optimizations
+   =================================== */
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .loading-logo,
+  .loading-bar-progress,
+  .loading-text {
+    animation: none !important;
+  }
+}
+
+/* Simpler animations on mobile for better performance */
+@media (max-width: 768px) {
+  /* Disable hover effects on touch devices */
+  .card-hover:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  .group:hover .image-zoom {
+    transform: none;
+  }
+
+  /* Faster transitions on mobile */
+  .transition-all {
+    transition-duration: 150ms;
+  }
+
+  /* Improve touch responsiveness */
+  button,
+  a,
+  select,
+  input {
+    touch-action: manipulation;
+  }
+
+  /* Remove will-change on mobile to save memory */
+  .loading-logo,
+  .loading-bar-progress {
+    will-change: auto;
+  }
+}
+
+/* Optimize for slow connections */
+@media (prefers-reduced-data: reduce) {
+  .image-zoom {
+    transition: none;
+  }
+}
