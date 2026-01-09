@@ -1,0 +1,24 @@
+{
+  "name": "P2P Hotels - Find your next stay",
+  "short_name": "P2P Hotels",
+  "description": "Find and book unique peer-to-peer hotel stays. Discover amazing properties worldwide.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#10221c",
+  "theme_color": "#2beead",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
