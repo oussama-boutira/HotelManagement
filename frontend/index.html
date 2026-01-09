@@ -61,7 +61,7 @@
               "background-light": "#ffffff",
               "background-dark": "#10221c",
               "text-main": "#222222",
-              "text-secondary": "#717171",
+              "text-secondary": "#595959",
               "border-light": "#dddddd",
             },
             fontFamily: {
@@ -418,6 +418,7 @@
           <select
             id="mobileCategoryFilter"
             onchange="filterByCategory(this.value)"
+            aria-label="Filter by category"
             class="flex-1 min-w-[45%] text-xs font-semibold border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="all">All Categories</option>
@@ -427,6 +428,7 @@
           <select
             id="mobileCityFilter"
             onchange="applyMobileFilters()"
+            aria-label="Filter by city"
             class="flex-1 min-w-[45%] text-xs border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="">All Cities</option>
@@ -436,6 +438,7 @@
           <select
             id="mobileStatusFilter"
             onchange="applyMobileFilters()"
+            aria-label="Filter by status"
             class="flex-1 min-w-[45%] text-xs border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="">Status</option>
@@ -446,6 +449,7 @@
           <select
             id="mobileStarsFilter"
             onchange="applyMobileFilters()"
+            aria-label="Filter by star rating"
             class="flex-1 min-w-[45%] text-xs border border-border-light dark:border-gray-700 rounded-xl px-4 py-3 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary text-text-main dark:text-white"
           >
             <option value="">Stars</option>
@@ -491,6 +495,7 @@
             <select
               id="cityFilter"
               onchange="applyFilters()"
+              aria-label="Filter by city"
               class="text-sm border border-border-light dark:border-gray-700 rounded-lg px-4 lg:px-6 py-2 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary"
             >
               <option value="">All Cities</option>
@@ -499,6 +504,7 @@
             <select
               id="statusFilter"
               onchange="applyFilters()"
+              aria-label="Filter by status"
               class="text-sm border border-border-light dark:border-gray-700 rounded-lg px-4 lg:px-6 py-2 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary"
             >
               <option value="">All Status</option>
@@ -508,6 +514,7 @@
             <select
               id="starsFilter"
               onchange="applyFilters()"
+              aria-label="Filter by star rating"
               class="text-sm border border-border-light dark:border-gray-700 rounded-lg px-4 lg:px-6 py-2 bg-white dark:bg-gray-800 focus:ring-primary focus:border-primary"
             >
               <option value="">All Stars</option>
