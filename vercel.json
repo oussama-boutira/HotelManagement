@@ -44,6 +44,14 @@
       "dest": "/frontend/my-properties.html"
     },
     {
+      "src": "/manifest.json",
+      "dest": "/frontend/manifest.json"
+    },
+    {
+      "src": "/icons/(.*)",
+      "dest": "/frontend/icons/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
